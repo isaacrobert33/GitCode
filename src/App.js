@@ -1,24 +1,34 @@
-import logo from './logo.svg';
 import './App.css';
+// import React, { useEffect } from "react";
+import WorkSpace from './WorkSpace';
 
 function App() {
+
+  // const addScript = (src) => {
+  //   let script = document.createElement("script");
+  //   // script.async = true;
+  //   script.src = src;
+  //   script.type = "text/javascript";
+  //   document.body.appendChild(script);
+  // }
+
+  // useEffect(() => {
+  //   // addScript("https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js");
+    
+  // })
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='App'>
+      <WorkSpace />
+      {/* {
+        addScript("./lib/ace.js")}
+      {
+        addScript("./lib/theme-monokai.js")
+      }
+      {
+        addScript("./ide.js")
+      } */}
     </div>
+    
   );
 }
 
