@@ -1,4 +1,6 @@
-*{margin: 0;}
+*{
+    margin: 0;
+}
 
 .header {
     background: #55aabb;
@@ -12,14 +14,23 @@
 
 .control-panel {
     background: lightgray;
-    text-align: right;
-    padding: 4px;
+    padding: 3px;
     font-family: sans-serif;
+    font-size: 13px;
+    display: flex;
 }
-
+.language-opt {
+    margin-left: 70%;
+    display: inline-flex;
+}
+.tool-bar {
+    display: inline-flex;
+    margin-left: -40px;
+}
 .languages {
     background: white;
     border: 1px solid gray;
+    height: 25px;
 }
 
 #editor { height: 400px; }
@@ -35,28 +46,92 @@
     border-left: 20px solid #57a958;
     height: 0px;
     margin-left: 98%;
-
 }
 
 .terminal {
-        padding: 4px;
-        border: 2px solid gray;
-        min-height: 100px;
-        width: 99%;
-        resize: none;
-        background-color: #333;
-        font-family: cursive;
-        color: azure;
+    padding: 4px;
+    border: 2px solid gray;
+    min-height: 100px;
+    width: 99%;
+    resize: none;
+    background-color: #333;
+    font-family: cursive;
+    color: azure;
 
 }
-.tool-bar {
-    display: inline-flex;
-}
-ul {
+
+.tool-bar ul {
     display: flex;
     flex: wrap;
+    margin: 0;
 }
-li {
+.tool-bar ul li {
     list-style-type: none;
+    padding: 3px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.dropdown {
+    width: 100px;
+    background-color: azure;
+    border-radius: 8px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding-bottom: 8px;
+    padding-top: 8px;
+    padding-left: 0;
+    position: absolute;
+    z-index: 6;
+    min-width: 160px;
+    transition: .2s margin-top;
+    display: none;
+    margin-left: 5%;
+    margin-top: 2%
+}
+
+.dropdown .dropdown-item {
+    cursor: pointer;
     padding: 5px;
+    display: block;
+    text-decoration: none;
+}
+
+.dropdown .dropdown-item:hover {
+    background-color: #aaa;
+}
+
+#overlay {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    z-index: 3;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    overflow: hidden;
+}
+a {
+    color: black;
+}
+i {
+    font-size: 14px;
+}
+@media only screen and (max-width: 600px) {
+    .language-opt {
+        margin-left: 5%;
+        display: inline-flex;
+    }
+
+    .run {
+        /* border-top: 10px solid white;
+        border-bottom: 10px solid white;
+        border-left: 20px solid #57a958;
+        height: 0px; */
+        margin-left: 90%;
+    }
+    .dropdown {
+        margin-top: 9%;
+    }
 }
