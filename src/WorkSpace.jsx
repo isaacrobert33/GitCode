@@ -37,8 +37,8 @@ function WorkSpace() {
         <div id='main'>
             <div className="header"> <i>main.py</i> ~ GitCode IDE </div>
             <div className="control-panel">
-                <DropDown id="file" list={[{name: "Open File", info: "Open a file"}, {name: "New File", info: "Create a new file"}, {name: "Save as", info: "Save file"}]} />
-                <DropDown id="git" list={[{name: "Add", info: "git add"}, {name: "Commit", info: "git commmit -m"}, {name: "Push", info: "git push "}, {name: "Pull", info: "git pull"}]} />
+                <DropDown id="file" list={[{name: "Open File", info: "Open a file"}, {name: "New File", info: "Create a new file"}, {name: "Save as", info: "Save file"}, {name: "Directory explorer", info: "Files explorer"}]} />
+                <DropDown id="git" list={[{name: "Add", info: "git add"}, {name: "Commit", info: "git commmit -m"}, {name: "Push", info: "git push "}, {name: "Pull", info: "git pull"}, {name: "All repositories", info: "All git repositories"}]} />
                 <DropDown id="help" list={[{name: "About", info: "About GitCode"}]} />
                 <div className="tool-bar">
                     <ul>

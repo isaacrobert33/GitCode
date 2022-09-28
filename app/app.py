@@ -1,0 +1,138 @@
+from urllib import response
+from flask import Flask, request, jsonify
+from flask_restful import Api, Resource
+from utils import (
+    HOMEPATH,
+    clone_repository,
+    explore_directory,
+    initialize_repo,
+    switch_branch,
+    commit_changes,
+    get_file_content,
+    save_file_content,
+    toolbar_options
+)
+
+app = Flask(__name__)
+api = Api(app=app)
+
+class CloneRepository(Resource):
+    def get(self):
+        """
+        Clone a repository
+
+        GET /clone_repo?url=https://repo.git
+        """
+        repo_url = request.args.get("url")
+        if not repo_url:
+            return jsonify({"msg": "Bad request!", "data": "", "code": 401})
+
+        response = clone_repository(repo_url)
+        return response
+
+class InitRepository(Resource):
+    def post(self):
+        """
+        Initialize a repo
+        PAYLOAD:
+            {
+                "repo_name": "New Repository",
+                "remote_url": ""
+            }
+        """
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({"msg": "Bad request!", "data": "", "code": 401})
+
+        response = initialize_repo(json_data=json_data)
+        return response
+
+class CommitChanges(Resource):
+    def post(self):
+        """
+        Commit Changes
+
+        PAYLOAD:
+            {
+                "repo_name": "Repository",
+                "commit_msg": "Initial commit"
+            }
+        """
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({"msg": "Bad request!", "data": "", "code": 401})
+
+        response = commit_changes(request.files.get("file"), json_data)
+        return response
+
+class SwitchBranch(Resource):
+    def post(self):
+        """
+        Checkout to a branch
+        
+        PAYLOAD:
+            {
+                "branch_name": "dev",
+                "repo_name": "",
+                "params": ""
+            }
+        """
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({"msg": "Bad request!", "data": "", "code": 401})
+
+        response = switch_branch(json_data)
+        return response
+
+class FileContent(Resource):
+    def get(self):
+        """
+        Get a file content
+
+        ARGS:
+            >>> file_path
+        """
+        file_path = request.args.get("file_path")
+
+        response = get_file_content(file_path)
+        return response
+
+class SaveFile(Resource):
+    def post(self):
+        """
+        Save a file
+
+        ARGS:
+            >>> file_path
+        """
+        file_path = request.args.get("file_path")
+        data = request.get_json().get("content")
+
+        response  = save_file_content(file_path=file_path, data=data)
+        return response
+
+class FileExplorer(Resource):
+    def get(self):
+        directory = request.args.get("dir")
+        if not directory:
+            directory = HOMEPATH
+        
+        response = explore_directory(directory)
+        return response
+
+class ToolbarOpt(Resource):
+    def get(self):
+        response = toolbar_options()
+        return response
+
+api.add_resource(CloneRepository, "/clone_repo")
+api.add_resource(InitRepository, "/init_repo")
+api.add_resource(CommitChanges, "/commit")
+api.add_resource(FileExplorer, "/file_explorer")
+api.add_resource(SwitchBranch, "/checkout")
+api.add_resource(FileContent, "/file_data")
+api.add_resource(ToolbarOpt, "/toolbar_opt")
+api.add_resource(SaveFile, "/save")
+
+if __name__=="__main__":
+    app.run(debug=True)

@@ -10,7 +10,13 @@
 
 # production
 /build
+/app/repositories
 
+venv
+/venv
+
+/app/venv
+*/bin
 # misc
 .DS_Store
 .env.local
@@ -21,3 +27,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+activate
+/__pycache__
+*/__pycache__
+/app/__pycache__
