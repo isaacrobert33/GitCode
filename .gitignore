@@ -13,9 +13,8 @@
 /app/repositories
 /app
 venv
-/venv
+*/venv/*
 
-/app/venv
 */bin
 # misc
 .DS_Store
