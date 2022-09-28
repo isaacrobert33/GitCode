@@ -10,10 +10,10 @@
 
 # production
 /build
-/app/repositories
-/app
-venv
-*/venv/*
+app/repositories/
+app/venv/
+venv/
+
 
 */bin
 # misc
@@ -30,4 +30,6 @@ yarn-error.log*
 activate
 /__pycache__
 */__pycache__
-/app/__pycache__
+app/__pycache__/
+*.py[co]
+
