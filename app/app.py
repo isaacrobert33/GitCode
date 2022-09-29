@@ -6,6 +6,8 @@ from utils import (
     clone_repository,
     explore_directory,
     initialize_repo,
+    pull_remote,
+    push_to_remote,
     switch_branch,
     commit_changes,
     get_file_content,
@@ -21,13 +23,15 @@ class CloneRepository(Resource):
         """
         Clone a repository
 
-        GET /clone_repo?url=https://repo.git
+        GET /clone_repo?url=https://repo.git&u=isaacrobert33&pwd=...
         """
         repo_url = request.args.get("url")
+        pwd = request.args.get("pwd")
+        username = request.args.get("u")
         if not repo_url:
             return jsonify({"msg": "Bad request!", "data": "", "code": 401})
 
-        response = clone_repository(repo_url)
+        response = clone_repository(repo_url, username, pwd)
         return response
 
 class InitRepository(Resource):
@@ -62,7 +66,37 @@ class CommitChanges(Resource):
         if not json_data:
             return jsonify({"msg": "Bad request!", "data": "", "code": 401})
 
-        response = commit_changes(request.files.get("file"), json_data)
+        response = commit_changes(json_data)
+        return response
+
+class PushRemote(Resource):
+    def post(self):
+        """
+        {
+            "repo_name": "Repository",
+            "branch_name": "master"
+        }
+        """
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({"msg": "Bad request!", "data": "", "code": 401}), 401
+
+        response = push_to_remote(json_data)
+        return response
+
+class PullRemote(Resource):
+    def post(self):
+        """
+        {
+            "repo_name": "Repository",
+            "branch_name": "master"
+        }
+        """
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({"msg": "Bad request!", "data": "", "code": 401}), 401
+
+        response = pull_remote(json_data)
         return response
 
 class SwitchBranch(Resource):
@@ -131,6 +165,8 @@ api.add_resource(CommitChanges, "/commit")
 api.add_resource(FileExplorer, "/file_explorer")
 api.add_resource(SwitchBranch, "/checkout")
 api.add_resource(FileContent, "/file_data")
+api.add_resource(PushRemote, "/push")
+api.add_resource(PullRemote, "/pull")
 api.add_resource(ToolbarOpt, "/toolbar_opt")
 api.add_resource(SaveFile, "/save")
 

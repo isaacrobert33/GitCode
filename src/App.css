@@ -119,12 +119,12 @@ i {
     font-size: 14px;
 }
 
-.file-explorer {
+.overlay {
     top: 0;
     bottom: 0;
     right: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, .8);
+    background-color: rgba(0, 0, 0, .6);
     width: 100%;
     height: 100%;
     z-index: 6;
@@ -133,14 +133,69 @@ i {
     display: none;
 }
 
-.file-explorer .main-window {
+.overlay .main-window {
     width: 50%;
-    height: 50%;
+    height: 60%;
     margin-left: 25%;
-    margin-top: 25%;
+    margin-top: 5%;
     background-color: azure;
     z-index: 7;
-    border: 15px;
+    border-radius: 15px;
+    padding: 10px;
+    text-align: center;
+}
+
+#close-btn {
+    background-color: tomato;
+    color: azure;
+    font-size: 25px;
+    float: right;
+    margin-right: 10px;
+    cursor: pointer;
+    box-shadow: 2px 0px 2px rgba(0,0,0,0.2);
+    border-top-right-radius: 8px;
+}
+
+.directory-content {
+    display: flex;
+    flex: wrap;
+}
+
+.file {
+    display: inline-block;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.window-icon {
+    float: left;
+    margin-left: 10px;
+    width: 50px;
+    height: 50px;
+}
+.text-input {
+    display: block;
+    margin: 15px;
+    border-radius: 5px;
+    width: 250px;
+    height: 25px;
+    border: none;
+    background-color: #ccc;
+}
+.git-btn {
+    border-radius: 6px;
+    background-color: #55bb55;
+    width: 80px;
+    height: 25px;
+    color: azure;
+    border: none;
+    float: left;
+    margin-left: 14px;
+}
+
+.git-ui {
+    display: block;
+    margin: 40px;
 }
 
 @media only screen and (max-width: 600px) {
