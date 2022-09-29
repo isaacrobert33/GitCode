@@ -85,7 +85,7 @@
     min-width: 160px;
     transition: .2s margin-top;
     display: none;
-    margin-left: 5%;
+    margin-left: 2%;
     margin-top: 2%
 }
 
@@ -118,6 +118,31 @@ a {
 i {
     font-size: 14px;
 }
+
+.file-explorer {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, .8);
+    width: 100%;
+    height: 100%;
+    z-index: 6;
+    overflow: hidden;
+    position: fixed;
+    display: none;
+}
+
+.file-explorer .main-window {
+    width: 50%;
+    height: 50%;
+    margin-left: 25%;
+    margin-top: 25%;
+    background-color: azure;
+    z-index: 7;
+    border: 15px;
+}
+
 @media only screen and (max-width: 600px) {
     .language-opt {
         margin-left: 5%;

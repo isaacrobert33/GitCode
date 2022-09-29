@@ -14,7 +14,6 @@ app/repositories/
 app/venv/
 venv/
 
-
 */bin
 # misc
 .DS_Store

@@ -186,6 +186,7 @@ def save_file_content(file_path, data):
     
     response = jsonify({"msg": "File saved successfully", "data": {"repo_name": msg}})
     response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
     return response
 
 def explore_directory(dir_path):
@@ -224,4 +225,5 @@ def toolbar_options():
     }
     response = jsonify({"msg": "Fetched successfully!", "data": data})
     response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
     return response

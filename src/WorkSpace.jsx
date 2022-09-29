@@ -1,5 +1,7 @@
 import React from 'react';
 import './App.css';
+import { useState, useEffect } from 'react';
+import FileExplorer from './FileExplorer';
 // import git_icon from './git-icon.svg';
 // import git_folder from './git-dir.svg';
 
@@ -32,14 +34,27 @@ function showDropdown(id) {
 }
 
 function WorkSpace() {
+    const [toolbarData, setToolbarData] = useState({file: [], git: [], help: []});
+    
+    const getToolbarData = async () => {
+        const response = await fetch("http://127.0.0.1:5000/toolbar_opt");
+        const data = await response.json();
+        console.log(data.data);
+        setToolbarData(data.data);
+    }
+    useEffect(() => {
+        getToolbarData();
+    }, [])
+    
   return (
     <div className="work-space">
+        <FileExplorer directory={[{fname: ".git", type: "dir"}]}/>
         <div id='main'>
             <div className="header"> <i>main.py</i> ~ GitCode IDE </div>
             <div className="control-panel">
-                <DropDown id="file" list={[{name: "Open File", info: "Open a file"}, {name: "New File", info: "Create a new file"}, {name: "Save as", info: "Save file"}, {name: "Directory explorer", info: "Files explorer"}]} />
-                <DropDown id="git" list={[{name: "Add", info: "git add"}, {name: "Commit", info: "git commmit -m"}, {name: "Push", info: "git push "}, {name: "Pull", info: "git pull"}, {name: "All repositories", info: "All git repositories"}]} />
-                <DropDown id="help" list={[{name: "About", info: "About GitCode"}]} />
+                <DropDown id="file" list={toolbarData.file} />
+                <DropDown id="git" list={toolbarData.git} />
+                <DropDown id="help" list={toolbarData.help} />
                 <div className="tool-bar">
                     <ul>
                         <li onClick={(e) => {showDropdown("file")}}>File</li>
