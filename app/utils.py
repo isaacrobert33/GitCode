@@ -1,3 +1,4 @@
+from genericpath import isfile
 import json
 from urllib import response
 from git import repo, Git
@@ -18,6 +19,7 @@ def clone_repository(repo_url: dict, username=None, pwd=None):
     """
     repo_name = repo_url.split("/")[-1].replace(".git", "")
     repo_dir = os.path.join(HOMEPATH, repo_name)
+    print(username, pwd)
     if username and pwd:
         s = repo_url.split("//")
         if "@" in s[1]: s[1] = s[1].split("@")[-1]
@@ -26,9 +28,11 @@ def clone_repository(repo_url: dict, username=None, pwd=None):
         repo_url = "//".join(s)
 
     try:
-        res = repo.Repo.clone_from(repo_url, repo_dir)
+        repo.Repo.clone_from(repo_url, repo_dir)
     except Exception as e:
-        return {"msg": e, "data": "", "code": 500}
+        response = jsonify({"msg": str(e), "data": ""})
+        response.headers["access-control-allow-origin"] = "*"
+        return response
     
     response = jsonify({"data": {"repo_path": repo_dir}, "msg": f"{repo_name.capitalize()} cloned succesfully"})
     response.status_code = 201
@@ -98,18 +102,23 @@ def switch_branch(json_data: dict):
 
     try:
         params = json_data.get("params", None)
-        if  params:
+
+        if params:
             checkout = repo_instance.git.checkout(params, branch_name)
         else:
             checkout = repo_instance.git.checkout(branch_name)
     except GitCommandError:
         response = jsonify({"msg": f"Branch '{branch_name}' does not exists"})
         response.status_code = 404
+        response.headers["access-control-allow-origin"] = "*"
         return response
 
     branch_name = repo_instance.active_branch.name
-    response.json = jsonify({"msg": "Checked out to {branch_name} successfullly", "data": {"repo_dir": repo_dir, "branch_name": branch_name, "msg": checkout}})
+    branch_name = branch_name if len(branch_name) < 9 else f"{branch_name[:9]}..."
+    print(branch_name)
+    response = jsonify({"msg": "Checked out to {branch_name} successfullly", "data": {"repo_dir": repo_dir, "branch_name": branch_name, "msg": checkout}})
     response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
     return response
 
 def pull_remote(json_data: dict):
@@ -130,8 +139,12 @@ def pull_remote(json_data: dict):
         
     except GitCommandError as e:
         response = jsonify({"msg": "Error pulling remote changes", "error": str(e)})
+        response.headers["access-control-allow-origin"] = "*"
         return response
 
+    branch_name = repo_instance.active_branch.name
+    branch_name = branch_name if len(branch_name) < 9 else f"{branch_name[:9]}..."
+    print(branch_name)
     response = jsonify({"msg": "Successfullly pulled changes", "data": {"repo_dir": repo_dir, "branch_name": branch_name, "msg": pull}})
     response.headers["access-control-allow-origin"] = "*"
     return response
@@ -147,6 +160,9 @@ def push_to_remote(json_data: dict):
   
     try:
         msg = repo_instance.git.push("origin", branch_name)
+        branch_name = repo_instance.active_branch.name
+        branch_name = branch_name if len(branch_name) < 9 else f"{branch_name[:9]}..."
+        print(branch_name)
         response = jsonify({"msg": "Pushed changes successfullly", "error": "", "data": {"msg": str(msg), "repo_dir": repo_dir, "branch_name": branch_name}})
         response.status_code = 201
     except Exception as e:
@@ -170,51 +186,71 @@ def compress_dir(path: str):
         return False
 
 def get_file_content(file_path: str):
-    repo_dir, repo_name, branch_name = "", "", ""
-
+    repo_dir, repo_name, branch_name, file_path = "", "", "", os.path.join(HOMEPATH, file_path.lstrip("/"))
+    filename = os.path.basename(file_path)
     if os.path.exists(file_path):
         with open(file_path, "r") as f:
             content = f.read()
         
     else:
         content = "File path does not exist"
-    if "repositories" in file_path:
-        repo_name = file_path.split("/")[file_path.split("/").index("repositories")+1]
-        repo_dir = os.path.join(HOMEPATH, repo_name)
-        repo_instance = repo.Repo(repo_dir)
-        branch_name = repo_instance.active_branch.name
-
+        
+    repos = os.listdir(HOMEPATH)
+    for i in repos:
+        if os.path.isfile(os.path.join(HOMEPATH, i)):
+            repos.pop(repos.index(i))
+  
+    for repos in repos:
+        if repos in file_path:
+            repo_name = file_path.split("/")[file_path.split("/").index("repositories")+1]
+            repo_dir = os.path.join(HOMEPATH, repo_name)
+            try:
+                repo_instance = repo.Repo(repo_dir)
+            except Exception as e:
+                response = jsonify({"msg": "Error accessing repository info", "error": str(e)})
+                response.headers["access-control-allow-origin"] = "*"
+                return response
+            branch_name = repo_instance.active_branch.name
+    
+    branch_name = branch_name if len(branch_name) < 9 else f"{branch_name[:9]}..."
+    print(branch_name)
     response = jsonify({
         "msg": "Content fetched successfully", 
-        "data": {"content": content, "branch_name": branch_name, "repo_name": repo_name, "repo_dir": repo_dir}
+        "data": {"filename": filename, "content": content, "branch_name": branch_name, "repo_name": repo_name, "repo_dir": repo_dir}
         })
     response.status_code = 201
     response.headers["access-control-allow-origin"] = "*"
     return response
 
 def save_file_content(file_path, data):
+    error = None
+    file_path = os.path.join(HOMEPATH, file_path.lstrip("/"))
+  
     if os.path.exists(file_path):
-        with open(file_path, "r") as f:
+        with open(file_path, "w") as f:
             f.write(data)
-        msg = ""
+        f.close()
     else:
-        msg = "File path does not exist"
+        error = True
     
-    response = jsonify({"msg": "File saved successfully", "data": {"repo_name": msg}})
+    response = jsonify({"msg": "File saved successfully!" if not error else "Error saving file!"})
     response.status_code = 201
     response.headers["access-control-allow-origin"] = "*"
     return response
 
 def explore_directory(dir_path):
-    if os.path.exists(dir_path):
+    dir_path = os.path.join(HOMEPATH, dir_path.lstrip("/"))
+    if os.path.exists(dir_path) and os.path.isdir(dir_path):
         dir_list = os.listdir(dir_path)
-
         data = [{"name": file, "type": "file" if os.path.isfile(os.path.join(dir_path, file)) else "dir"} for file in dir_list]
+    elif os.path.exists(dir_path) and os.path.isfile(dir_path):
+        response = get_file_content(dir_path)    
+        return response
     else:
         data = []
-
+    
     data = sorted(data, key=lambda x: x['name'])
-    response = jsonify({"msg": "Directory retrieved successfully", "data":  data})
+    response = jsonify({"msg": "Directory retrieved successfully", "data": data})
     response.status_code = 201
     response.headers["access-control-allow-origin"] = "*"
     return response
@@ -225,7 +261,7 @@ def toolbar_options():
         "file": [
             {_id: "open_file", name: "Open File", info: "Open a file"},
             {_id: "new_file", name: "New File", info: "Create a new file"},
-            {_id: "save", name: "Save as", info: "Save file"},
+            {_id: "save", name: "Save", info: "Save file"},
             {_id: "explorer", name: "Directory explorer", info: "Files explorer"}
             ],
         "git": [
@@ -233,7 +269,9 @@ def toolbar_options():
             {_id: "stage", name: "Stage", info: "git add"},
             {_id: "commit", name: "Commit", info: "git commmit -m"}, 
             {_id: "push", name: "Push", info: "git push "}, 
-            {_id: "pull", name: "Pull", info: "git pull"}, 
+            {_id: "pull", name: "Pull", info: "git pull"},
+            {_id: "checkout", name: "Checkout", info: "git checkout"},
+            {_id: "init", name: "Initialize a repository", info: "git init"},
             {_id: "all_repo", name: "All repositories", info: "All git repositories"}
             ],
         "help": [

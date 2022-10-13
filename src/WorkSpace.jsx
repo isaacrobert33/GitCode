@@ -3,6 +3,8 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import FileExplorer from './FileExplorer';
 import GitBoard from './GitBoard';
+import Toast from './Toast';
+import gitfork from './gitfork.svg'
 // import git_icon from './git-icon.svg';
 // import git_folder from './git-dir.svg';
 
@@ -21,12 +23,63 @@ const DropDown = ({ id, list, callback }) => {
     )
 }
 
+const PostInit = (json) => {
+    return {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(json)
+    }
+};
+
+// var GetInit = {
+//     method: "GET",
+//     headers: {
+//         "Accept": "application/json",
+//         "Content-Type": "application/json"
+//     }
+// };
+
+function hideToast() {
+    let toast = document.getElementById("toast");
+    toast.style.bottom = "-90px";
+    setTimeout(
+        () => (
+            toast.style.display = "none"
+        ), 1000
+    )
+    
+}
+
+function popToast() {
+    let toast = document.getElementById("toast");
+    toast.style.display = "block";
+    setTimeout(
+        () => (
+            toast.style.bottom = "5%"
+        ), 500
+    )
+    setTimeout(
+        () => {
+            hideToast();
+        }, 5000
+    )
+    
+}
+
 function WorkSpace() {
     const [toolbarData, setToolbarData] = useState({file: [], git: [], help: []});
-    const [currentDir, setCurrentDir] = useState("./repositories");
-    const [explorerData, setExplorerData] = useState([]);
+    // const [currentDir, setCurrentDir] = useState("./repositories");
+    // const [explorerData, setExplorerData] = useState([]);
     const [dropdown, setDropdown] = useState("");
     const [gitOperation, setGitOperation] = useState("");
+    const [currentRepo, setCurrentRepo] = useState("Repo");
+    const [branchName, setBranchName] = useState("<branch>");
+    const [repoDir, setRepoDir] = useState("");
+    const [fileName, setFileName] = useState("Unknown");
+    const [filePath, setFilePath] = useState("");
     
     const getToolbarData = async () => {
         const response = await fetch(`${host}/toolbar_opt`);
@@ -34,11 +87,11 @@ function WorkSpace() {
         console.log(data.data);
         setToolbarData(data.data);
     }
-    const getExplorerData = async () => {
-        let response = await fetch(`${host}/file_explorer?dir=${currentDir}`);
-        let data = await response.json();
-        setExplorerData(data.data);
-    }
+    // const getExplorerData = async () => {
+    //     let response = await fetch(`${host}/file_explorer?dir=${currentDir}`);
+    //     let data = await response.json();
+    //     setExplorerData(data.data);
+    // }
 
     const hideDropdown = (id, overlaynode=null) => {
         document.getElementById(id).style.display = "none";
@@ -53,6 +106,8 @@ function WorkSpace() {
 
     function showDropdown(id) {
         document.getElementById(id).style.display = "block";
+        // document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue("# Author: Isaac Robert \n# GitCode v0.1\nimport numpy as np\nimport pandas as pd\n");
+        console.log(document.getElementById("editor"));
         let overlay = document.createElement("div");
         overlay.id = "overlay";
         document.body.appendChild(overlay)
@@ -60,6 +115,33 @@ function WorkSpace() {
             hideDropdown(id, overlay)
             ))
         setDropdown(id);
+    }
+
+    function setEditorContent(content, fromFileExp=false, file_name, file_path, repo_name, branch_name="", repo_dir="") {
+        document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue(content);
+        console.log(content);
+        if (fromFileExp === true) {
+            document.getElementById("file-explorer").style.display = "none";
+        }
+        setCurrentRepo(repo_name);
+        setBranchName(branch_name);
+        setRepoDir(repo_dir);
+        setFileName(file_name);
+        setFilePath(file_path);
+    }
+
+    async function saveFile() {
+        if (fileName === "Unknown") {
+            document.getElementById("toast").innerText = "No data to save!";
+            popToast();
+        } else {
+            let editor_content = document.getElementsByClassName("CodeMirror")[0].CodeMirror.getValue();
+            let payload = {content: editor_content};
+            let response = await fetch(`${host}/save?file_path=${filePath}`, PostInit(payload));
+            let json_data = await response.json();
+            document.getElementById("toast").innerText = json_data.msg;
+            popToast();
+        }
     }
 
     function callBack(id) {
@@ -73,10 +155,12 @@ function WorkSpace() {
                 document.getElementById("file-explorer").style.display = "block";
                 hideDropdown(dropdown);
             }
+        } else if (id === "save") {
+            return (e) => {
+                saveFile();
+            }
         } else if (id === "all_repo") {
             return (e) => {
-                setCurrentDir("./repositories");
-                getExplorerData();
                 document.getElementById("file-explorer").style.display = "block";
                 hideDropdown(dropdown);
             }
@@ -88,7 +172,6 @@ function WorkSpace() {
             }
         } else if (id === "explorer") {
             return (e) => {
-                getExplorerData();
                 document.getElementById("file-explorer").style.display = "block";
                 hideDropdown(dropdown);
             }
@@ -104,20 +187,35 @@ function WorkSpace() {
                 document.getElementById("git-board").style.display = "block";
                 setGitOperation(id);
             }
+        } else if (id === "pull") {
+            return (e) => {
+                hideDropdown(dropdown);
+                document.getElementById("git-board").style.display = "block";
+                setGitOperation(id);
+            }
+             
+        } else if (id === "checkout") {
+            return (e) => {
+                hideDropdown(dropdown);
+                document.getElementById("git-board").style.display = "block";
+                setGitOperation(id);
+            }
         }
 
     }
 
     useEffect(() => {
         getToolbarData();
+        
     }, [])
     
     return (
         <div className="work-space">
-            <FileExplorer directory={explorerData} current_dir={currentDir}/>
-            <GitBoard operation={gitOperation}/>
+            <FileExplorer setEditorContent={setEditorContent}/>
+            <GitBoard operation={gitOperation} currentRepo={currentRepo} branch={setBranchName} repo={currentRepo}/>
+            <Toast msg={"Cloned successfully"}/>
             <div id='main'>
-                <div className="header"> <i>main.py</i> ~ GitCode IDE </div>
+                <div className="header"> <i>{fileName}</i> - {currentRepo} - GitCode IDE </div>
                 <div className="control-panel">
                     <DropDown id="file" list={toolbarData.file} callback={callBack} />
                     <DropDown id="git" list={toolbarData.git} callback={callBack} />
@@ -127,6 +225,7 @@ function WorkSpace() {
                             <li onClick={(e) => {showDropdown("file")}}>File</li>
                             <li onClick={(e) => {showDropdown("git")}}>Git</li>
                             <li onClick={(e) => {showDropdown("help")}}>Help</li>
+                            {/* <li onClick={(e) => {popToast()}}>Toast</li> */}
                         </ul>
                     </div>
                     <div className='language-opt'>
@@ -142,8 +241,14 @@ function WorkSpace() {
                     </div>
                     
                 </div>
-                <div className="editor" id="editor"></div>
+                <textarea className="editor" id="editor"></textarea>
 
+                <span id='branch' title='active branch'>
+                    <img src={gitfork} alt={"git"} 
+                        style={{width:"15px", height:"15px", display:"inline-block", paddingRight:"5px"}}
+                    />
+                    {branchName}
+                </span>
                 <div className="button-container">
                     <div className="run" onClick={window.executeCode}></div>
                 </div>

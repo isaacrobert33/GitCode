@@ -1,6 +1,7 @@
 from urllib import response
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
+from flask_cors import CORS
 from utils import (
     HOMEPATH,
     clone_repository,
@@ -17,19 +18,21 @@ from utils import (
 
 app = Flask(__name__)
 api = Api(app=app)
-
+cors = CORS(app)
 class CloneRepository(Resource):
     def get(self):
         """
         Clone a repository
 
-        GET /clone_repo?url=https://repo.git&u=isaacrobert33&pwd=...
+        GET /clone?url=https://repo.git&u=isaacrobert33&pwd=...
         """
         repo_url = request.args.get("url")
         pwd = request.args.get("pwd")
         username = request.args.get("u")
         if not repo_url:
-            return jsonify({"msg": "Bad request!", "data": "", "code": 401})
+            response = jsonify({"msg": "Bad request!", "data": "", "code": 401})
+            response.headers["access-control-allow-origin"] = "*"
+            return response
 
         response = clone_repository(repo_url, username, pwd)
         return response
@@ -79,7 +82,9 @@ class PushRemote(Resource):
         """
         json_data = request.get_json()
         if not json_data:
-            return jsonify({"msg": "Bad request!", "data": "", "code": 401}), 401
+            reponse = jsonify({"msg": "Bad request!", "data": "", "code": 401})
+            response.headers["access-control-allow-origin"] = "*"
+            return response, 401
 
         response = push_to_remote(json_data)
         return response
@@ -148,9 +153,7 @@ class SaveFile(Resource):
 class FileExplorer(Resource):
     def get(self):
         directory = request.args.get("dir")
-        if not directory:
-            directory = HOMEPATH
-        
+
         response = explore_directory(directory)
         return response
 
@@ -159,7 +162,7 @@ class ToolbarOpt(Resource):
         response = toolbar_options()
         return response
 
-api.add_resource(CloneRepository, "/clone_repo")
+api.add_resource(CloneRepository, "/clone")
 api.add_resource(InitRepository, "/init_repo")
 api.add_resource(CommitChanges, "/commit")
 api.add_resource(FileExplorer, "/file_explorer")
