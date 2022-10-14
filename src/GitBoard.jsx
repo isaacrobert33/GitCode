@@ -4,7 +4,7 @@ import './App.css';
 // import { useState } from 'react';
 import git_icon from './git-icon.svg';
 
-var host = "http://127.0.0.1:5000";
+// var host = "http://127.0.0.1:5000";
 
 const PostInit = (json) => {
     return {
@@ -59,7 +59,7 @@ const Commit = ({currentRepo}) => {
         let branch_name = document.getElementById("branch_name");
         let author = document.getElementById("author");
         let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value, "author": author.value, "commit_msg": commit_msg}
-        let response = await fetch(`${host}/commit`, PostInit(payload));
+        let response = await fetch(`/commit`, PostInit(payload));
         let json_data = await response.json();
         document.getElementById("toast").innerText = json_data.msg;
         popToast();
@@ -87,7 +87,7 @@ const Push = ({currentRepo}) => {
         let repo_name = document.getElementById("repo_name");
         let branch_name = document.getElementById("branch_name");
         let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value}
-        let response = await fetch(`${host}/push`, PostInit(payload));
+        let response = await fetch(`/push`, PostInit(payload));
         let json_data = await response.json();
         document.getElementById("toast").innerText = json_data.msg;
         branch_name.value = "";
@@ -110,7 +110,7 @@ const Pull = ({currentRepo}) => {
         let repo_name = document.getElementById("repo_name");
         let branch_name = document.getElementById("branch_name");
         let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value}
-        let response = await fetch(`${host}/pull`, PostInit(payload));
+        let response = await fetch(`/pull`, PostInit(payload));
         let json_data = await response.json();
         document.getElementById("toast").innerText = json_data.msg;
         branch_name.value = "";
@@ -133,7 +133,7 @@ const Clone = () => {
         let url = document.getElementById("repo_url");
         let pwd = document.getElementById("pwd");
         let uname = document.getElementById("uname");
-        let response = await fetch(`${host}/clone?url=${url.value}&pwd=${pwd.value}&u=${uname.value}`, GetInit);
+        let response = await fetch(`/clone?url=${url.value}&pwd=${pwd.value}&u=${uname.value}`, GetInit);
         let json_data = await response.json();
         document.getElementById("toast").innerText = json_data.msg;
         pwd.value = "";
@@ -171,7 +171,7 @@ const Checkout = ({currentRepo, setBranchName}) => {
             repo_name: repo_name.value,
             params: p
         }
-        let response = await fetch(`${host}/checkout`, PostInit(payload));
+        let response = await fetch(`/checkout`, PostInit(payload));
         let json_data = await response.json();
         document.getElementById("toast").innerText = json_data.data.msg;
         branch_name.value = "";

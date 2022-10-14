@@ -1,5 +1,5 @@
 from urllib import response
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_restful import Api, Resource
 from flask_cors import CORS
 from utils import (
@@ -15,10 +15,22 @@ from utils import (
     save_file_content,
     toolbar_options
 )
+import os
 
 app = Flask(__name__)
 api = Api(app=app)
 cors = CORS(app)
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/<path:file_path>")
+def get_file_path(file_path):
+    file_path = os.path.join("templates", file_path)
+    print(file_path)
+    return send_file(file_path)
+
 class CloneRepository(Resource):
     def get(self):
         """
