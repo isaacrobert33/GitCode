@@ -10,7 +10,7 @@
 
 # production
 /build
-app/repositories/
+/repositories
 app/venv/
 venv/
 
