@@ -186,4 +186,4 @@ api.add_resource(ToolbarOpt, "/toolbar_opt")
 api.add_resource(SaveFile, "/save")
 
 if __name__=="__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='172.20.10.2')
