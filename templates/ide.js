@@ -1,18 +1,20 @@
 var editor;
 
 window.onload = function() {
-    let editorNode = document.getElementById("editor");
-    editor = CodeMirror.fromTextArea(
-        editorNode,
-        {
-            mode: "python",
-            theme: "dracula",
-            lineNumbers: true,
-            autoCloseBrackets: true
-        }
-    );
-    editor.getDoc().setValue("# Author: Isaac Robert \n# GitCode v0.1");
-    
+    if (screen.width > 600) {
+        let editorNode = document.getElementById("editor");
+        editor = CodeMirror.fromTextArea(
+            editorNode,
+            {
+                mode: "python",
+                theme: "dracula",
+                lineNumbers: true,
+                autoCloseBrackets: true
+            }
+        );
+        editor.getDoc().setValue("# Author: Isaac Robert \n# GitCode v0.1");
+    }
+    s
 }
 
 function changeLanguage () {

@@ -11,6 +11,7 @@
 # production
 /build
 /repositories
+/app/repositories
 app/venv/
 venv/
 
