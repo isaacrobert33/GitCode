@@ -5,7 +5,7 @@ import file_icon from './file-icon.png';
 import { useState } from 'react';
 import { useEffect } from 'react';
 // import { useState } from 'react';
-// var host = "http://127.0.0.1:5000";
+var host = "http://127.0.0.1:5000";
 
 const File = ({name, type, on_click}) => {
     let icon;
@@ -35,11 +35,11 @@ const FileExplorer = ({setEditorContent}) => {
             path = path.replace("All Repos", "");
         }
         if (type === "file") {
-            let response = await fetch(`/file_data?file_path=${path}`);
+            let response = await fetch(`${host}/file_data?file_path=${path}`);
             let json_data = await response.json();
             setEditorContent(json_data.data.content, true, json_data.data.filename, path, json_data.data.repo_name, json_data.data.branch_name, json_data.data.repo_dir);
         } else {
-            let response = await fetch(`/file_explorer?dir=${path}`);
+            let response = await fetch(`${host}/file_explorer?dir=${path}`);
             let json_data = await response.json();
             setCurrentDirData(json_data.data);
             if (path === "") {

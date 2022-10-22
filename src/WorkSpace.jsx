@@ -8,7 +8,7 @@ import gitfork from './gitfork.svg'
 // import git_icon from './git-icon.svg';
 // import git_folder from './git-dir.svg';
 
-// var host = "http://127.0.0.1:5000";
+var host = "http://127.0.0.1:5000";
 
 const DropDown = ({ id, list, callback }) => {
     return (
@@ -82,7 +82,7 @@ function WorkSpace() {
     const [filePath, setFilePath] = useState("");
     
     const getToolbarData = async () => {
-        const response = await fetch(`/toolbar_opt`);
+        const response = await fetch(`${host}/toolbar_opt`);
         const data = await response.json();
         console.log(data.data);
         setToolbarData(data.data);
@@ -100,7 +100,6 @@ function WorkSpace() {
             document.body.removeChild(overlaynode);
         } else {
             document.getElementById("overlay").style.display = "none";
-            console.log("Removed overlay")
         }  
     }
 
@@ -118,8 +117,13 @@ function WorkSpace() {
     }
 
     function setEditorContent(content, fromFileExp=false, file_name, file_path, repo_name, branch_name="", repo_dir="") {
-        document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue(content);
-        console.log(content);
+        try {
+            document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue(content);
+            console.log(content);
+        } catch (error) {
+            document.getElementById("editor").value = content;
+        }
+        
         if (fromFileExp === true) {
             document.getElementById("file-explorer").style.display = "none";
         }
@@ -137,7 +141,7 @@ function WorkSpace() {
         } else {
             let editor_content = document.getElementsByClassName("CodeMirror")[0].CodeMirror.getValue();
             let payload = {content: editor_content};
-            let response = await fetch(`/save?file_path=${filePath}`, PostInit(payload));
+            let response = await fetch(`${host}/save?file_path=${filePath}`, PostInit(payload));
             let json_data = await response.json();
             document.getElementById("toast").innerText = json_data.msg;
             popToast();

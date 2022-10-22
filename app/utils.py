@@ -250,6 +250,7 @@ def explore_directory(dir_path):
         data = []
     
     data = sorted(data, key=lambda x: x['name'])
+    data = [e for e in data if e["type"] == "dir"]+[e for e in data if e["type"] == "file"]
     response = jsonify({"msg": "Directory retrieved successfully", "data": data})
     response.status_code = 201
     response.headers["access-control-allow-origin"] = "*"
