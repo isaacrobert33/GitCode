@@ -1,5 +1,5 @@
 from urllib import response
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, url_for
 from flask_restful import Api, Resource
 from flask_cors import CORS
 from utils import (
@@ -24,6 +24,12 @@ cors = CORS(app)
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/static/<path:static_path>")
+def static_path(static_path):
+    path = url_for("static", filename=static_path)
+    print(path)
+    return path
 
 @app.route("/<path:file_path>")
 def get_file_path(file_path):
@@ -186,4 +192,4 @@ api.add_resource(ToolbarOpt, "/toolbar_opt")
 api.add_resource(SaveFile, "/save")
 
 if __name__=="__main__":
-    app.run(debug=True, host='172.20.10.2')
+    app.run(debug=True)

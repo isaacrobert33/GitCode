@@ -14,7 +14,7 @@ window.onload = function() {
         );
         editor.getDoc().setValue("# Author: Isaac Robert \n# GitCode v0.1");
     }
-    s
+    
 }
 
 function changeLanguage () {
