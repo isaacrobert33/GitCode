@@ -1,3 +1,4 @@
+
 import React from 'react';
 import './App.css';
 import folder_icon from './git-dir.svg';
@@ -7,6 +8,7 @@ import { useEffect } from 'react';
 // import { useState } from 'react';
 // var host = "http://127.0.0.1:5000";
 var host = "";
+
 
 const File = ({name, type, on_click}) => {
     let icon;
@@ -26,19 +28,30 @@ const File = ({name, type, on_click}) => {
     )
 }
 
-const FileExplorer = ({setEditorContent}) => {
+const PostInit = (json) => {
+    return {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(json)
+    }
+};
+
+
+const NewFileExplorer = ({setEditorContent}) => {
 
     const [currentDirData, setCurrentDirData] = useState([]);
     const [currentDir, setCurrentDir] = useState("");
+    const [filePath, setFilePath] = useState("");
 
     const getDirData = async (path, type) => {
         if (path.includes("All Repos")) {
             path = path.replace("All Repos", "");
         }
         if (type === "file") {
-            let response = await fetch(`${host}/file_data?file_path=${path}`);
-            let json_data = await response.json();
-            setEditorContent(json_data.data.content, true, json_data.data.filename, path, json_data.data.repo_name, json_data.data.branch_name, json_data.data.repo_dir);
+            console.log("is_file");
         } else {
             let response = await fetch(`${host}/file_explorer?dir=${path}`);
             let json_data = await response.json();
@@ -62,13 +75,20 @@ const FileExplorer = ({setEditorContent}) => {
         document.getElementById("file-explorer").style.display = "none";
         getDirData("", "dir");
     }
+    const saveFile = async() => {
+        let filePath = currentDir+"/"+document.getElementById("filename").value;
+        let response = await fetch(`${host}/save?file_path=${filePath}`, PostInit({}));
+        let json_data = await response.json();
+        console.log(json_data);
+    }
     useEffect(
         () => {
             getDirData(currentDir);
         }, []
     )
+
     return (
-        <div className='overlay' id='file-explorer'>
+        <div className='overlay' id='new-file-explorer'>
             <div className='main-window'>
                 <span id='close-btn' onClick={(e) => {closeExplorer()}}>&times;</span>
                 <h2>File Explorer</h2>
@@ -98,10 +118,13 @@ const FileExplorer = ({setEditorContent}) => {
                     )
                 }
                 
-                
+                <div id='text-field'>
+                    <input type={"text"} id={"filename"}/>
+                    <button id='savefile' onClick={(e) => (saveFile)}>Save</button>
+                </div>
             </div>
         </div>
     )
 }
 
-export default FileExplorer;
+export default NewFileExplorer;

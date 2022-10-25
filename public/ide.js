@@ -1,8 +1,9 @@
 var editor;
 
 window.onload = function() {
+    let editorNode = document.getElementById("editor");
     if (screen.width > 600) {
-        let editorNode = document.getElementById("editor");
+        
         editor = CodeMirror.fromTextArea(
             editorNode,
             {
@@ -13,8 +14,10 @@ window.onload = function() {
             }
         );
         editor.getDoc().setValue("# Author: Isaac Robert \n# GitCode v0.1");
+    } else {
+        editorNode.value = "# Author: Isaac Robert \n# GitCode v0.1";
     }
-    s
+    
 }
 
 function changeLanguage () {

@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import { useState, useEffect } from 'react';
 import FileExplorer from './FileExplorer';
+import NewFileExplorer from './NewFileExplorer';
 import GitBoard from './GitBoard';
 import Toast from './Toast';
 import gitfork from './gitfork.svg'
@@ -140,7 +141,13 @@ function WorkSpace() {
             document.getElementById("toast").innerText = "No data to save!";
             popToast();
         } else {
-            let editor_content = document.getElementsByClassName("CodeMirror")[0].CodeMirror.getValue();
+            let editor_content;
+            try {
+                editor_content = document.getElementsByClassName("CodeMirror")[0].CodeMirror.getValue();
+            } catch (error) {
+                editor_content = document.getElementById("editor").value;
+            }
+            
             let payload = {content: editor_content};
             let response = await fetch(`${host}/save?file_path=${filePath}`, PostInit(payload));
             let json_data = await response.json();
@@ -217,6 +224,7 @@ function WorkSpace() {
     return (
         <div className="work-space">
             <FileExplorer setEditorContent={setEditorContent}/>
+            <NewFileExplorer setEditorContent={setEditorContent}/>
             <GitBoard operation={gitOperation} currentRepo={currentRepo} branch={setBranchName} repo={currentRepo}/>
             <Toast msg={"Cloned successfully"}/>
             <div id='main'>
