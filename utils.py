@@ -19,7 +19,7 @@ def clone_repository(repo_url: dict, username=None, pwd=None):
     """
     repo_name = repo_url.split("/")[-1].replace(".git", "")
     repo_dir = os.path.join(HOMEPATH, repo_name)
-    print(username, pwd)
+
     if username and pwd:
         s = repo_url.split("//")
         if "@" in s[1]: s[1] = s[1].split("@")[-1]
@@ -71,16 +71,12 @@ def commit_changes(json_data: dict):
     """
     repo_name = json_data.get("repo_name")
     repo_dir = os.path.join(HOMEPATH, repo_name)
-    author = json_data.get("author")
+    author = json_data.get("author", "")
     repo_instance = repo.Repo(repo_dir)
     repo_instance.git.add(update=True)
     response = jsonify()
     try:
-        if author:
-            msg = repo_instance.git.commit("-m", json_data["commit_msg"], author=author)
-        else:
-            msg = repo_instance.git.commit("-m", json_data["commit_msg"])
-        
+        msg = repo_instance.git.commit("-m", json_data["commit_msg"], author=author)
         response = jsonify({"msg": "Changes commited succesfully", "error": "", "data": {"repo_dir": repo_dir, "msg": msg}})
     except Exception as e:
         msg = str(e).split("stdout:")[1]
@@ -114,8 +110,7 @@ def switch_branch(json_data: dict):
         return response
 
     branch_name = repo_instance.active_branch.name
-    branch_name = branch_name if len(branch_name) < 9 else f"{branch_name[:9]}..."
-    print(branch_name)
+    branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
     response = jsonify({"msg": "Checked out to {branch_name} successfullly", "data": {"repo_dir": repo_dir, "branch_name": branch_name, "msg": checkout}})
     response.status_code = 201
     response.headers["access-control-allow-origin"] = "*"
@@ -143,8 +138,7 @@ def pull_remote(json_data: dict):
         return response
 
     branch_name = repo_instance.active_branch.name
-    branch_name = branch_name if len(branch_name) < 9 else f"{branch_name[:9]}..."
-    print(branch_name)
+    branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
     response = jsonify({"msg": "Successfullly pulled changes", "data": {"repo_dir": repo_dir, "branch_name": branch_name, "msg": pull}})
     response.headers["access-control-allow-origin"] = "*"
     return response
@@ -161,8 +155,7 @@ def push_to_remote(json_data: dict):
     try:
         msg = repo_instance.git.push("origin", branch_name)
         branch_name = repo_instance.active_branch.name
-        branch_name = branch_name if len(branch_name) < 9 else f"{branch_name[:9]}..."
-        print(branch_name)
+        branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
         response = jsonify({"msg": "Pushed changes successfullly", "error": "", "data": {"msg": str(msg), "repo_dir": repo_dir, "branch_name": branch_name}})
         response.status_code = 201
     except Exception as e:
@@ -172,6 +165,28 @@ def push_to_remote(json_data: dict):
 
     response.headers["access-control-allow-origin"] = "*"
     return response
+
+def get_status(repo_name: str):
+    """
+    Get Git status
+    """
+    repo_dir = os.path.join(HOMEPATH, repo_name)
+    g = Git(repo_dir)
+    status = None
+    try:
+        status = g.status()
+    except:
+        response = jsonify({"msg": "Error fetching git status for current repo"})
+        response.headers["access-control-allow-origin"] = "*"
+        response.status_code = 500
+        return response
+
+    response = jsonify({"data": {"msg": status}, "msg": "Fetched status succesfully"})
+    response.headers["access-control-allow-origin"] = "*"
+    response.status_code = 201
+
+    return response
+
 
 def compress_dir(path: str):
     """
@@ -212,8 +227,7 @@ def get_file_content(file_path: str):
                 return response
             branch_name = repo_instance.active_branch.name
     
-    branch_name = branch_name if len(branch_name) < 9 else f"{branch_name[:9]}..."
-    print(branch_name)
+    branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
     response = jsonify({
         "msg": "Content fetched successfully", 
         "data": {"filename": filename, "content": content, "branch_name": branch_name, "repo_name": repo_name, "repo_dir": repo_dir}
@@ -274,6 +288,7 @@ def toolbar_options():
             {_id: "push", name: "Push", info: "git push "}, 
             {_id: "pull", name: "Pull", info: "git pull"},
             {_id: "checkout", name: "Checkout", info: "git checkout"},
+            {_id: "status", name: "Status", info: "git status"},
             {_id: "init", name: "Initialize a repository", info: "git init"},
             {_id: "all_repo", name: "All repositories", info: "All git repositories"}
             ],

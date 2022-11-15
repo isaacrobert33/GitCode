@@ -13,7 +13,8 @@ from utils import (
     commit_changes,
     get_file_content,
     save_file_content,
-    toolbar_options
+    toolbar_options,
+    get_status,
 )
 import os
 
@@ -135,6 +136,14 @@ class SwitchBranch(Resource):
         response = switch_branch(json_data)
         return response
 
+class Status(Resource):
+    def get(self):
+        """
+        """
+        repo_name = request.args.get("repo_name")
+        response = get_status(repo_name=repo_name)
+        return response
+
 class FileContent(Resource):
     def get(self):
         """
@@ -184,6 +193,7 @@ api.add_resource(PushRemote, "/push")
 api.add_resource(PullRemote, "/pull")
 api.add_resource(ToolbarOpt, "/toolbar_opt")
 api.add_resource(SaveFile, "/save")
+api.add_resource(Status, "/status")
 
 if __name__=="__main__":
     app.run(debug=True)
