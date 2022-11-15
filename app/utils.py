@@ -1,199 +1,302 @@
+from genericpath import isfile
+import json
 from urllib import response
-from flask import Flask, request, jsonify, render_template, send_file
-from flask_restful import Api, Resource
-from flask_cors import CORS
-from utils import (
-    HOMEPATH,
-    clone_repository,
-    explore_directory,
-    initialize_repo,
-    pull_remote,
-    push_to_remote,
-    switch_branch,
-    commit_changes,
-    get_file_content,
-    save_file_content,
-    toolbar_options,
-    get_status,
-)
+from git import repo, Git
+from flask import make_response, jsonify
+from git.exc import GitCommandError
+# from dotenv import load_dotenv
+import codecs
+import shutil
 import os
+# import requests
 
-app = Flask(__name__)
-api = Api(app=app)
-cors = CORS(app)
+HOMEPATH = "./repositories"
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+def clone_repository(repo_url: dict, username=None, pwd=None):
+    """
+    Clone a repository
+    >>> clone_clone(json_data: dict) -> Dict[str, Any]
+    """
+    repo_name = repo_url.split("/")[-1].replace(".git", "")
+    repo_dir = os.path.join(HOMEPATH, repo_name)
 
-@app.route("/<path:file_path>")
-def get_file_path(file_path):
-    file_path = os.path.join("templates", file_path)
-    print(file_path)
-    return send_file(file_path)
-
-class CloneRepository(Resource):
-    def get(self):
-        """
-        Clone a repository
-
-        GET /clone?url=https://repo.git&u=isaacrobert33&pwd=...
-        """
-        repo_url = request.args.get("url")
-        pwd = request.args.get("pwd")
-        username = request.args.get("u")
-        if not repo_url:
-            response = jsonify({"msg": "Bad request!", "data": "", "code": 401})
-            response.headers["access-control-allow-origin"] = "*"
-            return response
-
-        response = clone_repository(repo_url, username, pwd)
-        return response
-
-class InitRepository(Resource):
-    def post(self):
-        """
-        Initialize a repo
-        PAYLOAD:
-            {
-                "repo_name": "New Repository",
-                "remote_url": ""
-            }
-        """
-        json_data = request.get_json()
-        if not json_data:
-            return jsonify({"msg": "Bad request!", "data": "", "code": 401})
-
-        response = initialize_repo(json_data=json_data)
-        return response
-
-class CommitChanges(Resource):
-    def post(self):
-        """
-        Commit Changes
-
-        PAYLOAD:
-            {
-                "repo_name": "Repository",
-                "commit_msg": "Initial commit"
-            }
-        """
-        json_data = request.get_json()
-        if not json_data:
-            return jsonify({"msg": "Bad request!", "data": "", "code": 401})
-
-        response = commit_changes(json_data)
-        return response
-
-class PushRemote(Resource):
-    def post(self):
-        """
-        {
-            "repo_name": "Repository",
-            "branch_name": "master"
-        }
-        """
-        json_data = request.get_json()
-        if not json_data:
-            reponse = jsonify({"msg": "Bad request!", "data": "", "code": 401})
-            response.headers["access-control-allow-origin"] = "*"
-            return response, 401
-
-        response = push_to_remote(json_data)
-        return response
-
-class PullRemote(Resource):
-    def post(self):
-        """
-        {
-            "repo_name": "Repository",
-            "branch_name": "master"
-        }
-        """
-        json_data = request.get_json()
-        if not json_data:
-            return jsonify({"msg": "Bad request!", "data": "", "code": 401}), 401
-
-        response = pull_remote(json_data)
-        return response
-
-class SwitchBranch(Resource):
-    def post(self):
-        """
-        Checkout to a branch
+    if username and pwd:
+        s = repo_url.split("//")
+        if "@" in s[1]: s[1] = s[1].split("@")[-1]
+        s[1] = f"{username}:{pwd}@{s[1]}"
         
-        PAYLOAD:
-            {
-                "branch_name": "dev",
-                "repo_name": "",
-                "params": ""
-            }
-        """
-        json_data = request.get_json()
-        if not json_data:
-            return jsonify({"msg": "Bad request!", "data": "", "code": 401})
+        repo_url = "//".join(s)
 
-        response = switch_branch(json_data)
+    try:
+        repo.Repo.clone_from(repo_url, repo_dir)
+    except Exception as e:
+        response = jsonify({"msg": str(e), "data": ""})
+        response.headers["access-control-allow-origin"] = "*"
+        return response
+    
+    response = jsonify({"data": {"repo_path": repo_dir}, "msg": f"{repo_name.capitalize()} cloned succesfully"})
+    response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
+    return response
+
+def initialize_repo(json_data: dict):
+    """
+    Initialize a local git repository
+    """
+    repo_name = json_data.get("repo_name", "New Repository")
+    remote_url = json_data.get("remote_url")
+    repo_dir = os.path.join(HOMEPATH, repo_name)
+    try:
+        repo_instance = repo.Repo.init(os.path.join(HOMEPATH, repo_name))
+    except Exception as e:
+        return {"msg": "Error initializing repo", "error": e}, 500
+
+    if remote_url:
+        remote = repo_instance.create_remote("origin", remote_url)
+        if remote.exists():
+            response = jsonify({"msg": "Repo initialized and remote added succesfully", "error": "", "data": {"repo_dir": repo_dir}})
+        else:
+            response = jsonify({"msg": "Repo initialized succesfully", "error": "Remote not added successfully", "data": {"repo_dir": repo_dir}})
+
+    else:
+        response = jsonify({"msg": "Repo initialized successfully", "data": {"repo_dir": repo_dir, "branch_name": repo_instance.active_branch.name}})
+    
+    response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
+    return response
+
+def commit_changes(json_data: dict):
+    """
+    Commit Changes on a repository
+    """
+    repo_name = json_data.get("repo_name")
+    repo_dir = os.path.join(HOMEPATH, repo_name)
+    author = json_data.get("author", "")
+    repo_instance = repo.Repo(repo_dir)
+    repo_instance.git.add(update=True)
+    response = jsonify()
+    try:
+        msg = repo_instance.git.commit("-m", json_data["commit_msg"], author=author)
+        response = jsonify({"msg": "Changes commited succesfully", "error": "", "data": {"repo_dir": repo_dir, "msg": msg}})
+    except Exception as e:
+        msg = str(e).split("stdout:")[1]
+        response = jsonify({"msg": "Failed to commit changes", "error": msg, "data": {"repo_dir": repo_dir, "msg": msg, "branch_name": repo_instance.active_branch.name}})
+
+    response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
+    return response
+
+def switch_branch(json_data: dict):
+    """
+    Checkout to branch
+    switch_branch(json_data={}, request) -> Response
+    """
+    repo_name = json_data.get("repo_name")
+    repo_dir = os.path.join(HOMEPATH, repo_name)
+    branch_name = json_data["branch_name"]
+    repo_instance = repo.Repo(repo_dir)
+
+    try:
+        params = json_data.get("params", None)
+
+        if params:
+            checkout = repo_instance.git.checkout(params, branch_name)
+        else:
+            checkout = repo_instance.git.checkout(branch_name)
+    except GitCommandError:
+        response = jsonify({"msg": f"Branch '{branch_name}' does not exists"})
+        response.status_code = 404
+        response.headers["access-control-allow-origin"] = "*"
         return response
 
-class Status(Resource):
-    def get(self):
-        """
-        """
-        repo_name = request.args.get("repo_name")
-        response = get_status(repo_name=repo_name)
+    branch_name = repo_instance.active_branch.name
+    branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
+    response = jsonify({"msg": "Checked out to {branch_name} successfullly", "data": {"repo_dir": repo_dir, "branch_name": branch_name, "msg": checkout}})
+    response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
+    return response
+
+def pull_remote(json_data: dict):
+    """
+    Pull remote refs
+    >>> pull_remote(json_data, request) -> Response
+    """
+    repo_name = json_data.get("repo_name")
+    repo_dir = os.path.join(HOMEPATH, repo_name)
+    repo_instance = repo.Repo(repo_dir)
+    current_branch_name = repo_instance.active_branch.name
+    # origin = repo_instance.remote(json_data["origin"])
+    g = Git(repo_dir)
+
+    try:
+        branch_name = json_data.get("branch_name", current_branch_name)
+        pull = g.pull(json_data.get("origin", "origin"), branch_name)
+        
+    except GitCommandError as e:
+        response = jsonify({"msg": "Error pulling remote changes", "error": str(e)})
+        response.headers["access-control-allow-origin"] = "*"
         return response
 
-class FileContent(Resource):
-    def get(self):
-        """
-        Get a file content
+    branch_name = repo_instance.active_branch.name
+    branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
+    response = jsonify({"msg": "Successfullly pulled changes", "data": {"repo_dir": repo_dir, "branch_name": branch_name, "msg": pull}})
+    response.headers["access-control-allow-origin"] = "*"
+    return response
 
-        ARGS:
-            >>> file_path
-        """
-        file_path = request.args.get("file_path")
+def push_to_remote(json_data: dict):
+    """
+    Push to remote refs
+    """
+    repo_name = json_data.get("repo_name")
+    repo_dir = os.path.join(HOMEPATH, repo_name)
+    repo_instance = repo.Repo(repo_dir)
+    branch_name = json_data.get("branch_name", repo_instance.active_branch.name)
+  
+    try:
+        msg = repo_instance.git.push("origin", branch_name)
+        branch_name = repo_instance.active_branch.name
+        branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
+        response = jsonify({"msg": "Pushed changes successfullly", "error": "", "data": {"msg": str(msg), "repo_dir": repo_dir, "branch_name": branch_name}})
+        response.status_code = 201
+    except Exception as e:
+        print(e)
+        response = jsonify({"msg": "Failed to push to remote", "error": str(e), "data": {"repo_dir": repo_dir, "branch_name": branch_name}})
+        response.status_code = 500
 
-        response = get_file_content(file_path)
+    response.headers["access-control-allow-origin"] = "*"
+    return response
+
+def get_status(repo_name: str):
+    """
+    Get Git status
+    """
+    repo_dir = os.path.join(HOMEPATH, repo_name)
+    g = Git(repo_dir)
+    status = None
+    try:
+        status = g.status()
+    except:
+        response = jsonify({"msg": "Error fetching git status for current repo"})
+        response.headers["access-control-allow-origin"] = "*"
+        response.status_code = 500
         return response
 
-class SaveFile(Resource):
-    def post(self):
-        """
-        Save a file
+    response = jsonify({"data": {"msg": status}, "msg": "Fetched status succesfully"})
+    response.headers["access-control-allow-origin"] = "*"
+    response.status_code = 201
 
-        ARGS:
-            >>> file_path
-        """
-        file_path = request.args.get("file_path")
-        data = request.get_json().get("content")
+    return response
 
-        response  = save_file_content(file_path=file_path, data=data)
+
+def compress_dir(path: str):
+    """
+    Compress repository folder to zip
+    >>> compress_dir("repo-dir") -> "repo-dir"
+    """
+    shutil.make_archive(path, "zip", path)
+
+    if os.path.exists(f"{path}.zip"):
+        return f"{path}.zip"
+    else:
+        return False
+
+def get_file_content(file_path: str):
+    repo_dir, repo_name, branch_name, file_path = "", "", "", os.path.join(HOMEPATH, file_path.lstrip("/"))
+    filename = os.path.basename(file_path)
+    if os.path.exists(file_path):
+        with open(file_path, "r") as f:
+            content = f.read()
+        
+    else:
+        content = "File path does not exist"
+        
+    repos = os.listdir(HOMEPATH)
+    for i in repos:
+        if os.path.isfile(os.path.join(HOMEPATH, i)):
+            repos.pop(repos.index(i))
+  
+    for repos in repos:
+        if repos in file_path:
+            repo_name = file_path.split("/")[file_path.split("/").index("repositories")+1]
+            repo_dir = os.path.join(HOMEPATH, repo_name)
+            try:
+                repo_instance = repo.Repo(repo_dir)
+            except Exception as e:
+                response = jsonify({"msg": "Error accessing repository info", "error": str(e)})
+                response.headers["access-control-allow-origin"] = "*"
+                return response
+            branch_name = repo_instance.active_branch.name
+    
+    branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
+    response = jsonify({
+        "msg": "Content fetched successfully", 
+        "data": {"filename": filename, "content": content, "branch_name": branch_name, "repo_name": repo_name, "repo_dir": repo_dir}
+        })
+    response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
+    return response
+
+def save_file_content(file_path, data=None):
+    error = None
+    file_path = os.path.join(HOMEPATH, file_path.lstrip("/"))
+  
+    if os.path.exists(file_path) and data:
+        with open(file_path, "w") as f:
+            f.write(data)
+        f.close()
+    else:
+        with open(file_path, "w") as f:
+            f.write("")
+        f.close()
+    
+    response = jsonify({"msg": "File saved successfully!" if not error else "Error saving file!"})
+    response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
+    return response
+
+def explore_directory(dir_path):
+    dir_path = os.path.join(HOMEPATH, dir_path.lstrip("/"))
+    if os.path.exists(dir_path) and os.path.isdir(dir_path):
+        dir_list = os.listdir(dir_path)
+        data = [{"name": file, "type": "file" if os.path.isfile(os.path.join(dir_path, file)) else "dir"} for file in dir_list]
+    elif os.path.exists(dir_path) and os.path.isfile(dir_path):
+        response = get_file_content(dir_path)    
         return response
+    else:
+        data = []
+    
+    data = sorted(data, key=lambda x: x['name'])
+    data = [e for e in data if e["type"] == "dir"]+[e for e in data if e["type"] == "file"]
+    response = jsonify({"msg": "Directory retrieved successfully", "data": data})
+    response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
+    return response
 
-class FileExplorer(Resource):
-    def get(self):
-        directory = request.args.get("dir")
-
-        response = explore_directory(directory)
-        return response
-
-class ToolbarOpt(Resource):
-    def get(self):
-        response = toolbar_options()
-        return response
-
-api.add_resource(CloneRepository, "/clone")
-api.add_resource(InitRepository, "/init_repo")
-api.add_resource(CommitChanges, "/commit")
-api.add_resource(FileExplorer, "/file_explorer")
-api.add_resource(SwitchBranch, "/checkout")
-api.add_resource(FileContent, "/file_data")
-api.add_resource(PushRemote, "/push")
-api.add_resource(PullRemote, "/pull")
-api.add_resource(ToolbarOpt, "/toolbar_opt")
-api.add_resource(SaveFile, "/save")
-api.add_resource(Status, "/status")
-
-if __name__=="__main__":
-    app.run(debug=True)
+def toolbar_options():
+    name, info, _id = "name", "info", "id"
+    data = {
+        "file": [
+            {_id: "open_file", name: "Open File", info: "Open a file"},
+            {_id: "new_file", name: "New File", info: "Create a new file"},
+            {_id: "save", name: "Save", info: "Save file"},
+            {_id: "explorer", name: "Directory explorer", info: "Files explorer"}
+            ],
+        "git": [
+            {_id: "clone", name: "Clone", info: "git clone"},
+            {_id: "stage", name: "Stage", info: "git add"},
+            {_id: "commit", name: "Commit", info: "git commmit -m"}, 
+            {_id: "push", name: "Push", info: "git push "}, 
+            {_id: "pull", name: "Pull", info: "git pull"},
+            {_id: "checkout", name: "Checkout", info: "git checkout"},
+            {_id: "status", name: "Status", info: "git status"},
+            {_id: "init", name: "Initialize a repository", info: "git init"},
+            {_id: "all_repo", name: "All repositories", info: "All git repositories"}
+            ],
+        "help": [
+            {_id: "about", name: "About", info: "About GitCode"}
+            ],
+    }
+    response = jsonify({"msg": "Fetched successfully!", "data": data})
+    response.status_code = 201
+    response.headers["access-control-allow-origin"] = "*"
+    return response
