@@ -222,16 +222,18 @@ def get_file_content(file_path: str):
     response.headers["access-control-allow-origin"] = "*"
     return response
 
-def save_file_content(file_path, data):
+def save_file_content(file_path, data=None):
     error = None
     file_path = os.path.join(HOMEPATH, file_path.lstrip("/"))
   
-    if os.path.exists(file_path):
+    if os.path.exists(file_path) and data:
         with open(file_path, "w") as f:
             f.write(data)
         f.close()
     else:
-        error = True
+        with open(file_path, "w") as f:
+            f.write("")
+        f.close()
     
     response = jsonify({"msg": "File saved successfully!" if not error else "Error saving file!"})
     response.status_code = 201
@@ -250,6 +252,7 @@ def explore_directory(dir_path):
         data = []
     
     data = sorted(data, key=lambda x: x['name'])
+    data = [e for e in data if e["type"] == "dir"]+[e for e in data if e["type"] == "file"]
     response = jsonify({"msg": "Directory retrieved successfully", "data": data})
     response.status_code = 201
     response.headers["access-control-allow-origin"] = "*"
