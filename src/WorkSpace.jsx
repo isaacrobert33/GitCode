@@ -156,6 +156,13 @@ function WorkSpace() {
         }
     }
 
+    async function getGitStatus() {
+        let response = await fetch(`${host}/status?repo_name=${currentRepo}`);
+        let json_data = await response.json();
+        document.getElementById("toast").innerText = json_data.data.msg;
+        popToast();
+    }
+
     function callBack(id) {
         if (id === "new_file") {
             return (e) => {
@@ -170,6 +177,7 @@ function WorkSpace() {
         } else if (id === "save") {
             return (e) => {
                 saveFile();
+                hideDropdown(dropdown);
             }
         } else if (id === "all_repo") {
             return (e) => {
@@ -211,6 +219,11 @@ function WorkSpace() {
                 hideDropdown(dropdown);
                 document.getElementById("git-board").style.display = "block";
                 setGitOperation(id);
+            }
+        } else if (id === "status") {
+            return (e) => {
+                hideDropdown(dropdown);
+                getGitStatus();
             }
         }
 

@@ -49,6 +49,7 @@
     background-color: #55aabb;
     margin-top: 0;
     color: azure;
+    font-size: 12px;
 }
 .run {
     border-top: 10px solid white;
@@ -230,7 +231,7 @@ label {
 
 .toast {
     min-width: 200px;
-    height: 25px;
+    min-height: 25px;
     background-color: azure;
     box-shadow: 1px 0 5px rgba(0, 0, 0, .7);
     border-radius: 5px;
@@ -271,9 +272,9 @@ label {
         margin-top: 9%;
     }
     .toast {
-        margin-left: 20%;
+        margin-left: 10%;
         min-width: 140px;
-        height: 20px;
+        min-height: 20px;
     }
     .close-toast-btn {
         margin-right: 5px;

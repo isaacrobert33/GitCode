@@ -55,14 +55,15 @@ function popToast() {
 
 const Commit = ({currentRepo}) => {
     const commit = async () => {
+        document.getElementById("commit-btn").text = "Commiting...";
         let commit_msg = document.getElementById("commit_msg");
         let repo_name = document.getElementById("repo_name");
         let branch_name = document.getElementById("branch_name");
         let author = document.getElementById("author");
-        let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value, "author": author.value, "commit_msg": commit_msg}
+        let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value, "author": author.value, "commit_msg": commit_msg.value}
         let response = await fetch(`${host}/commit`, PostInit(payload));
         let json_data = await response.json();
-        document.getElementById("toast").innerText = json_data.msg;
+        document.getElementById("toast").innerText = json_data.data.msg;
         popToast();
         document.getElementById("git-board").style.display = "none";
         branch_name.value = "";
@@ -85,12 +86,13 @@ const Commit = ({currentRepo}) => {
 
 const Push = ({currentRepo}) => {
     const push = async () => {
+        document.getElementById("push-btn").text = "Pushing...";
         let repo_name = document.getElementById("repo_name");
         let branch_name = document.getElementById("branch_name");
         let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value}
         let response = await fetch(`${host}/push`, PostInit(payload));
         let json_data = await response.json();
-        document.getElementById("toast").innerText = json_data.msg;
+        document.getElementById("toast").innerText = json_data.data.msg;
         branch_name.value = "";
         popToast();
         document.getElementById("git-board").style.display = "none";
@@ -108,12 +110,13 @@ const Push = ({currentRepo}) => {
 
 const Pull = ({currentRepo}) => {
     const pull = async () => {
+        document.getElementById("pull-btn").text = "Pulling..."
         let repo_name = document.getElementById("repo_name");
         let branch_name = document.getElementById("branch_name");
         let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value}
         let response = await fetch(`${host}/pull`, PostInit(payload));
         let json_data = await response.json();
-        document.getElementById("toast").innerText = json_data.msg;
+        document.getElementById("toast").innerText = json_data.data.msg;
         branch_name.value = "";
         popToast();
         document.getElementById("git-board").style.display = "none";
@@ -131,6 +134,7 @@ const Pull = ({currentRepo}) => {
 
 const Clone = () => {
     const clone_repo = async () => {
+        document.getElementById("clone-btn").text = "Cloning..";
         let url = document.getElementById("repo_url");
         let pwd = document.getElementById("pwd");
         let uname = document.getElementById("uname");
