@@ -6,8 +6,8 @@ import file_icon from './file-icon.png';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
-var host = "http://127.0.0.1:5000";
-// var host = "";
+// var host = "http://127.0.0.1:5000";
+var host = "";
 
 
 const File = ({name, type, on_click}) => {
