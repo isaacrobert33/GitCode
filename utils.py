@@ -221,11 +221,11 @@ def get_file_content(file_path: str):
             repo_dir = os.path.join(HOMEPATH, repo_name)
             try:
                 repo_instance = repo.Repo(repo_dir)
+                branch_name = repo_instance.active_branch.name
             except Exception as e:
-                response = jsonify({"msg": "Error accessing repository info", "error": str(e)})
-                response.headers["access-control-allow-origin"] = "*"
-                return response
-            branch_name = repo_instance.active_branch.name
+                branch_name = ""
+                repo_name = ""
+                repo_dir = ""
     
     branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
     response = jsonify({
