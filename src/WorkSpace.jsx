@@ -9,8 +9,8 @@ import gitfork from './gitfork.svg'
 // import git_icon from './git-icon.svg';
 // import git_folder from './git-dir.svg';
 
-// var host = "http://127.0.0.1:5000";
-var host = "";
+var host = "http://127.0.0.1:5000";
+// var host = "";
 
 const DropDown = ({ id, list, callback }) => {
     return (
@@ -128,6 +128,7 @@ function WorkSpace() {
         
         if (fromFileExp === true) {
             document.getElementById("file-explorer").style.display = "none";
+            document.getElementById("new-file-explorer").style.display = "none";
         }
         setCurrentRepo(repo_name);
         setBranchName(branch_name);

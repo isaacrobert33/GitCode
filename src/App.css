@@ -259,6 +259,22 @@ label {
     color:#55a955;
 }
 
+#text-field {
+    position: fixed;
+    top: 72%;
+    left: 59%;
+}
+
+#filename {
+    border-right: 0px;
+
+}
+#savefile {
+    border-bottom-right-radius: 8px;
+    background-color: #55a955;
+    color: azure;
+}
+
 @media only screen and (max-width: 600px) {
     .language-opt {
         margin-left: 5%;
@@ -312,6 +328,12 @@ label {
         background-color: #112;
         overflow: auto;
         color: azure;
+    }
+
+    #text-field {
+        position: fixed;
+        top: 92%;
+        left: 25%;
     }
 
 }
