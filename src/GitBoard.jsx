@@ -1,4 +1,6 @@
 import React from 'react';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
 // import Toast from './Toast';
 // import { useState } from 'react';
@@ -37,8 +39,9 @@ function hideToast() {
     
 }
 
-function popToast() {
+function popToast(msg) {
     let toast = document.getElementById("toast");
+    toast.innerText = msg;
     toast.style.display = "block";
     setTimeout(
         () => (
@@ -48,7 +51,7 @@ function popToast() {
     setTimeout(
         () => {
             hideToast();
-        }, 5000
+        }, 8000
     )
     
 }
@@ -63,8 +66,7 @@ const Commit = ({currentRepo}) => {
         let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value, "author": author.value, "commit_msg": commit_msg.value}
         let response = await fetch(`${host}/commit`, PostInit(payload));
         let json_data = await response.json();
-        document.getElementById("toast").innerText = json_data.data.msg;
-        popToast();
+        popToast(json_data.data.msg);
         document.getElementById("git-board").style.display = "none";
         branch_name.value = "";
         author.value = "";
@@ -89,12 +91,17 @@ const Push = ({currentRepo}) => {
         document.getElementById("push-btn").text = "Pushing...";
         let repo_name = document.getElementById("repo_name");
         let branch_name = document.getElementById("branch_name");
-        let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value}
+        let payload;
+        if (branch_name) {
+            payload = {"repo_name": repo_name.value, "branch_name": branch_name.value}
+        } else {
+            payload = {"repo_name": repo_name.value}
+        }
+        
         let response = await fetch(`${host}/push`, PostInit(payload));
         let json_data = await response.json();
-        document.getElementById("toast").innerText = json_data.data.msg;
         branch_name.value = "";
-        popToast();
+        popToast(json_data.data.msg);
         document.getElementById("git-board").style.display = "none";
     }
     return (
@@ -116,9 +123,8 @@ const Pull = ({currentRepo}) => {
         let payload = {"repo_name": repo_name.value, "branch_name": branch_name.value}
         let response = await fetch(`${host}/pull`, PostInit(payload));
         let json_data = await response.json();
-        document.getElementById("toast").innerText = json_data.data.msg;
         branch_name.value = "";
-        popToast();
+        popToast(json_data.data.msg);
         document.getElementById("git-board").style.display = "none";
     }
     return (
@@ -140,10 +146,9 @@ const Clone = () => {
         let uname = document.getElementById("uname");
         let response = await fetch(`${host}/clone?url=${url.value}&pwd=${pwd.value}&u=${uname.value}`, GetInit);
         let json_data = await response.json();
-        document.getElementById("toast").innerText = json_data.msg;
         pwd.value = "";
         uname.value = "";
-        popToast();
+        popToast(json_data.msg);
         document.getElementById("git-board").style.display = "none";
     }
 
@@ -178,9 +183,8 @@ const Checkout = ({currentRepo, setBranchName}) => {
         }
         let response = await fetch(`${host}/checkout`, PostInit(payload));
         let json_data = await response.json();
-        document.getElementById("toast").innerText = json_data.data.msg;
         branch_name.value = "";
-        popToast();
+        popToast(json_data.data.msg);
         document.getElementById("git-board").style.display = "none";
         setBranchName(json_data.data.branch_name);
     }
@@ -202,7 +206,77 @@ const Checkout = ({currentRepo, setBranchName}) => {
     )
 }
 
-function getComponent(operation, repo, branch, currentRepo) {
+const Branch = ({currentRepo, setBranchName}) => {
+    const [branches, setBranches] = useState([]);
+
+    const getBranches = async () => {
+        let response = await fetch(`${host}/branch?repo_name=${currentRepo}`);
+        let json_data = await response.json();
+        setBranches(json_data.data.msg.split("\n"));
+    }
+
+    const checkout = async (branch_name) => {
+        if (branch_name.includes("*")) {
+            popToast("Currently checked out to"+branch_name.replace("*", ""));
+            document.getElementById("git-board").style.display = "none";
+            return;
+        }
+        let payload = {
+            branch_name: branch_name,
+            repo_name: currentRepo
+        }
+        let response = await fetch(`${host}/checkout`, PostInit(payload));
+        let json_data = await response.json();
+        
+        popToast(json_data.data.msg);
+        document.getElementById("git-board").style.display = "none";
+        setBranchName(json_data.data.branch_name);
+    }
+
+    const startObserver = () => {
+        var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutationRecord) {
+                getBranches();
+            })
+        })
+        var target = document.getElementById("git-branch");
+        observer.observe(target, {attribute: true, attributeFilter: ['style']});
+    }
+
+    useEffect(
+        () => {
+            getBranches();
+            startObserver();
+            document.getElementById("git-branch").style.display = "block";
+        }, []
+    )
+    
+    return (
+        <div className='git-ui' id='git-branch'>
+            <h4>Click to checkout</h4>
+            <br></br>
+                {
+                    branches?.length > 0 ? (
+                        <ul className='branches'>
+                            {
+                                branches.map(
+                                    (branchName) => (
+                                        <li id='branch' title={'checkout to '+branchName} onClick={(e) => (checkout(branchName))}>{branchName}</li>
+                                    )
+                            )
+                            }
+                        </ul>
+                        
+                    ) : (
+                        <></>
+                    )
+                }
+            
+        </div>
+    )
+}
+
+function getComponent(operation, branch, currentRepo) {
     if (operation === "clone") {
         return (
             <Clone />
@@ -223,17 +297,26 @@ function getComponent(operation, repo, branch, currentRepo) {
         return (
             <Checkout currentRepo={currentRepo} setBranchName={branch}/>
         )
+    } else if (operation === "branch") {
+        return (
+            <Branch currentRepo={currentRepo} setBranchName={branch}/>
+        )
     }
 }
-const GitBoard = ({operation, repo, branch, currentRepo}) => {
+const GitBoard = ({operation, branch, currentRepo}) => {
     return (
         <div className='overlay' id='git-board'>
             <div className='main-window'>
                 <img className='window-icon' src={git_icon} alt={"git"} />
-                <span id='close-btn' onClick={(e) => {document.getElementById("git-board").style.display = "none"}}>&times;</span>
-                <h2>Git</h2>
+                <span id='close-btn' onClick={(e) => {
+                    document.getElementById("git-board").style.display = "none";
+                    if (operation === "branch") {
+                        document.getElementById("git-branch").style.display = "none";
+                    }
+                    }}>&times;</span>
+                <h2>Git - {operation.charAt(0).toUpperCase()+operation.slice(1)}</h2>
                 {
-                    getComponent(operation, repo, branch, currentRepo)
+                    getComponent(operation, branch, currentRepo)
                 }
                 
             </div>

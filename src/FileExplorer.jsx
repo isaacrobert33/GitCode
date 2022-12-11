@@ -8,71 +8,185 @@ import { useEffect } from 'react';
 // var host = "http://127.0.0.1:5000";
 var host = "";
 
-const File = ({name, type, on_click}) => {
+const File = ({name, file_path, type, on_click}) => {
     let icon;
     if (type === "dir") {
         icon = folder_icon;
     } else {
         icon = file_icon;
+        let images = ["png", "jpg", "jpeg"];
+        for (let ext=0; ext<images.length; ext++) {
+            if (name.includes(images[ext])) {
+                icon = `${host}/download_file?file_path=${file_path}`;
+            }
+        }
     }
     return (
         <div className='file' title={name} onClick={
             on_click
         }>
-            <img alt={name} src={icon}/>
+            <img id='file-icon' alt={name} src={icon} width='40px' height={'40px'}/>
             <br></br>
             <span style={{fontSize: "10px"}}>{name}</span>
         </div>
     )
 }
 
+const FileDropDown = ({open_file, delete_file, download, close_dd}) => {
+    return (
+        <div className={"file-drop-down"} id={"file-drop-down"}>
+            <ul>
+                <li onClick={(e) => {open_file()}}>Open</li>
+                <li onClick={(e) => {delete_file()}}>Delete</li>
+                <li onClick={(e) => {download()}}>Download</li>
+                <li onClick={(e) => {close_dd()}}>Close</li>
+
+            </ul>
+        </div>
+    )
+}
+
+function hideToast() {
+    let toast = document.getElementById("toast");
+    toast.style.bottom = "-90px";
+    setTimeout(
+        () => (
+            toast.style.display = "none"
+        ), 1000
+    )
+    
+}
+
+function popToast(msg) {
+    let toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(
+        () => (
+            toast.style.bottom = "5%"
+        ), 500
+    )
+    setTimeout(
+        () => {
+            hideToast();
+        }, 8000
+    )
+    
+}
+
 const FileExplorer = ({setEditorContent}) => {
 
     const [currentDirData, setCurrentDirData] = useState([]);
     const [currentDir, setCurrentDir] = useState("");
+    const [currentDirTitle, setCurrentDirTitle] = useState("");
+    const [currentPath, setCurrentPath] = useState("");
+    const [activeFile, setActiveFile] = useState("");
+
+    const openFile = async () => {
+        hide_file_drop_down()
+        let path = currentPath;
+        let response = await fetch(`${host}/file_data?file_path=${path}`);
+        let json_data = await response.json();
+        setEditorContent(json_data.data.content, true, json_data.data.filename, path, json_data.data.repo_name, json_data.data.branch_name, json_data.data.repo_dir);
+        line_counter();
+    }
+
+    const deleteFile = async () => {
+        hide_file_drop_down()
+        let response = await fetch(`${host}/delete_file?file_path=${activeFile}`, {method: "DELETE"});
+        let json_data = await response.json();
+        popToast(json_data.data.msg);
+        getDirData(currentDir, "dir");
+    }
+
+    const downloadFile = async () => {
+        hide_file_drop_down()
+        let download_link = `${host}/download_file?file_path=${activeFile}`;
+        let dl = document.createElement("a");
+        dl.href = download_link;
+        document.body.appendChild(dl);
+        dl.click();
+        document.body.removeChild(dl)
+        popToast("Downloading...");
+    }
+
+    function show_file_drop_down(path) {
+        setActiveFile(path);
+        document.getElementById("file-drop-down").style.display = "block";
+    }
+
+    function hide_file_drop_down() {
+        document.getElementById("file-drop-down").style.display = "none";
+    }
 
     const getDirData = async (path, type) => {
         if (path.includes("All Repos")) {
             path = path.replace("All Repos", "");
         }
         if (type === "file") {
-            let response = await fetch(`${host}/file_data?file_path=${path}`);
-            let json_data = await response.json();
-            setEditorContent(json_data.data.content, true, json_data.data.filename, path, json_data.data.repo_name, json_data.data.branch_name, json_data.data.repo_dir);
+            setCurrentPath(path);
+            show_file_drop_down(path);
         } else {
             let response = await fetch(`${host}/file_explorer?dir=${path}`);
             let json_data = await response.json();
             setCurrentDirData(json_data.data);
+            setCurrentDir(path);
             if (path === "") {
                 path = "All Repos";
             }
-            setCurrentDir(path);
+            setCurrentDirTitle(path);
         }
         
     }
     const navigateBack = () => {
         let back_path = currentDir.split("/")
         back_path.pop();
-        console.log(back_path);
         back_path = back_path.join("/");
-        console.log(back_path);
         getDirData(back_path, "dir");
     }
     const closeExplorer = () => {
         document.getElementById("file-explorer").style.display = "none";
         getDirData("", "dir");
     }
+
+    var lineCountCache = 0;
+    function line_counter() {
+        let editorNode = document.getElementById("editor");
+        let lineNumbering = document.getElementById("lineCounter");
+        let lineCount = editorNode.value.split('\n').length;
+        let outarr = new Array();
+        if (lineCountCache != lineCount) {
+            for (let x = 0; x < lineCount; x++) {
+                outarr[x] = (x + 1) + '.';
+            }
+            lineNumbering.value = outarr.join('\n');
+        }
+        lineCountCache = lineCount;
+    }
+
+    const startObserver = () => {
+        var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutationRecord) {
+                getDirData(currentDir, "dir");
+            })
+        })
+        var target = document.getElementById("file-explorer");
+        observer.observe(target, {attribute: true, attributeFilter: ['style']});
+    }
+
     useEffect(
         () => {
-            getDirData(currentDir);
+            getDirData(currentDir, "dir");
+            startObserver()
         }, []
     )
     return (
         <div className='overlay' id='file-explorer'>
             <div className='main-window'>
+                <FileDropDown open_file={openFile} close_dd={hide_file_drop_down} delete_file={deleteFile} download={downloadFile}/>
                 <span id='close-btn' onClick={(e) => {closeExplorer()}}>&times;</span>
                 <h2>File Explorer</h2>
-                <h4>Current Directory: {currentDir}</h4>
+                <h4>Current Directory: {currentDirTitle}</h4>
                 <div className='nav-container'>
                 <span className='navigator' onClick={navigateBack}>&larr;</span><span className='navigator'>&rarr;</span>
                 </div>
@@ -83,7 +197,7 @@ const FileExplorer = ({setEditorContent}) => {
                             {
                                 currentDirData.map(
                                     (file) => (
-                                        <File name={file.name} type={file.type} on_click={
+                                        <File file_path={currentDir+"/"+file.name} name={file.name} type={file.type} on_click={
                                             (e) => (
                                                 getDirData(currentDir+"/"+file.name, file.type)
                                             )

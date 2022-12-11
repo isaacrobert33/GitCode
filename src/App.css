@@ -33,10 +33,6 @@
     height: 25px;
 }
 
-/* #editor { 
-    height: 400px;
-} */
-
 .button-container {
     padding: 4px;
     display: inline-block;
@@ -69,7 +65,23 @@
     color: azure;
 
 }
-
+.branches {
+    margin: 0;
+    padding: 0;
+}
+#branch {
+    list-style-type: none;
+    text-align: left;
+    background-color: grey;
+    border-bottom: 2px solid #112;
+    padding: 4px;
+    width: 100%;
+    cursor: pointer;
+}
+#branch:hover {
+    background-color: beige;
+    color: #ff6347;
+}
 .tool-bar ul {
     display: flex;
     flex: wrap;
@@ -80,13 +92,14 @@
     padding: 3px;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: bold;
 }
 
 .dropdown {
     width: 100px;
     background-color: azure;
     border-radius: 8px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 1px 8px 16px 0px rgba(0,0,0,0.2);
     padding-bottom: 8px;
     padding-top: 8px;
     padding-left: 0;
@@ -177,7 +190,10 @@ i {
 .file {
     display: inline-block;
     padding: 10px;
+    padding-bottom: 5px;
+    max-height: 50px;
     cursor: pointer;
+    margin: 3px;
 }
 
 .window-icon {
@@ -204,6 +220,9 @@ label {
     margin: 15px;
     border-radius: 5px;
     text-align: left;
+}
+#git-branch {
+    display: none;
 }
 .git-btn {
     border-radius: 6px;
@@ -242,6 +261,7 @@ label {
     transition: bottom .3s;
     display: none;
     z-index: 6;
+    opacity: 0.7;
 }
 .nav-container {
     background-color: rgba(0, 0, 20, .5);
@@ -261,18 +281,105 @@ label {
 
 #text-field {
     position: fixed;
-    top: 72%;
-    left: 59%;
+    top: 70%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    margin-left: -25px;
 }
 
 #filename {
     border-right: 0px;
-
+    outline: none;
+    border: 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border: 2px solid #55a955;
+    height: 20px;
+    width: 150px;
+    margin: 2px;
 }
 #savefile {
-    border-bottom-right-radius: 8px;
     background-color: #55a955;
     color: azure;
+    border: 0;
+    padding: 4px;
+    padding-right: 0;
+    margin-right: 0;
+    margin: 2px;   
+}
+#savefolder {
+    background-color: #55a955;
+    color: azure;
+    border: 0;
+    margin: 0;
+    padding: 2px;
+    
+}
+
+#savefile:hover {
+    background-color: azure;
+    color: black;
+    border: 3px double #55a955;
+    padding: 2px;
+    padding-right: 0;
+}
+
+#upload {
+    display: inline-block;
+}
+
+#upload-btn {
+    background-color: #55a955;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    color: azure;
+    padding: 4px;
+    margin: 2px;
+
+}
+#upload-btn:hover {
+    background-color: azure;
+    color: black;
+    border: 3px double #55a955;
+    padding: 2px;
+}
+
+.file-drop-down {
+    min-width: 100px;
+    min-height: 120px;
+    box-shadow: -2px 2px 6px 2px #333;
+    background-color: inherit;
+    right: 50%;
+    top: 40%;
+    z-index: 9;
+    position: absolute;
+    border-radius: 15px;
+    padding: 0;
+    display: none;
+    font-size: 12px;
+}
+
+.file-drop-down ul {
+    list-style-type: none;
+    text-decoration: none;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    padding-top: 7px;
+    cursor: pointer;
+}
+
+.file-drop-down ul li {
+    padding: 5px;
+}
+
+.file-drop-down ul li:hover {
+    background-color: grey;
+}
+
+#lineCounter {
+    display: none;
 }
 
 @media only screen and (max-width: 600px) {
@@ -288,7 +395,7 @@ label {
         margin-top: 9%;
     }
     .toast {
-        margin-left: 10%;
+        margin-left: 5%;
         min-width: 140px;
         min-height: 20px;
     }
@@ -322,18 +429,50 @@ label {
         background-color: #ccc;
     }
 
-    .editor {
-        width: 100%;
-        height: 360px;
-        background-color: #112;
-        overflow: auto;
+    .editor, #lineCounter {
+        /* overflow: auto; */
+        resize: none;
         color: azure;
+        outline: none;
+        line-height: 1.2;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        border-radius: 0;
+        height: 75vh;
+    }
+
+    #lineCounter:focus-visible,
+    .editor:focus-visible {
+        outline:none;
+    }
+
+    #lineCounter {
+        display: flex;
+        border-color: transparent;
+        overflow-y: hidden;
+        text-align: right;
+        box-shadow: none;
+        background-color: #d8d8d8;
+        position: absolute;
+        width: 2rem;
+        /* Determine appearance of line counter */
+        background-color: #334;
+        color:#928869;
+        border-right: 2px solid cyan;
+    }
+
+    .editor {
+        padding-left: calc(2rem + 3px);
+        width:100%;
+        /* Determine appearance of code editor */
+        border-color:#272822;
+        background-color: #112;
     }
 
     #text-field {
         position: fixed;
-        top: 92%;
-        left: 25%;
+        top: 90%;
+        
     }
 
 }

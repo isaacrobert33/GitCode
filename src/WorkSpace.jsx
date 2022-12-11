@@ -66,7 +66,7 @@ function popToast() {
     setTimeout(
         () => {
             hideToast();
-        }, 5000
+        }, 8000
     )
     
 }
@@ -226,9 +226,30 @@ function WorkSpace() {
                 hideDropdown(dropdown);
                 getGitStatus();
             }
+        } else if (id === "branch") {
+            return (e) => {
+                hideDropdown(dropdown);
+                setGitOperation(id);
+                document.getElementById("git-board").style.display = "block";
+                if (document.getElementById("git-branch")) {
+                    document.getElementById("git-branch").style.display = "block";
+                }
+                
+            }
         }
 
     }
+    // const startObserver = () => {
+    //     var observer = new MutationObserver(function(mutations) {
+    //         mutations.forEach(function(mutationRecord) {
+    //             console.log("style changed");
+    //         })
+    //     })
+    //     var target1 = document.getElementById("file-explorer");
+    //     var target2 = document.getElementById("new-file-explorer");
+    //     observer.observe(target1, {attribute: true, attributeFilter: ['style']});
+    //     observer.observe(target2, {attribute: true, attributeFilter: ['style']});
+    // }
 
     useEffect(() => {
         getToolbarData();
@@ -239,7 +260,7 @@ function WorkSpace() {
         <div className="work-space">
             <FileExplorer setEditorContent={setEditorContent}/>
             <NewFileExplorer setEditorContent={setEditorContent}/>
-            <GitBoard operation={gitOperation} currentRepo={currentRepo} branch={setBranchName} repo={currentRepo}/>
+            <GitBoard operation={gitOperation} currentRepo={currentRepo} branch={setBranchName}/>
             <Toast msg={"Cloned successfully"}/>
             <div id='main'>
                 <div className="header"> <i>{fileName}</i> - {currentRepo} - GitCode IDE </div>
@@ -259,17 +280,19 @@ function WorkSpace() {
                         Select Language:
                         &nbsp; &nbsp;
                         <select id="languages" className="languages" onChange={window.changeLanguage}>
-                            <option value="c"> C </option>
+                            {/* <option value="c"> C </option>
                             <option value="cpp"> C++ </option>
-                            <option value="php"> PHP </option>
+                            <option value="php"> PHP </option> */}
                             <option value="python"> Python </option>
-                            <option value="node"> Node JS </option>
+                            {/* <option value="node"> Node JS </option> */}
                         </select>
                     </div>
                     
                 </div>
-                <textarea className="editor" id="editor"></textarea>
-
+                <p id='editor-container'>
+                    <textarea id="lineCounter" wrap='off' readOnly>1.</textarea>
+                </p>
+                
                 <span id='branch' title='active branch'>
                     <img src={gitfork} alt={"git"} 
                         style={{width:"15px", height:"15px", display:"inline-block", paddingRight:"5px"}}
