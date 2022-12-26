@@ -69,7 +69,7 @@
     margin: 0;
     padding: 0;
 }
-#branch {
+.branch-li {
     list-style-type: none;
     text-align: left;
     background-color: grey;
@@ -78,7 +78,7 @@
     width: 100%;
     cursor: pointer;
 }
-#branch:hover {
+.branch-li:hover {
     background-color: beige;
     color: #ff6347;
 }
@@ -192,6 +192,16 @@ i {
     padding: 10px;
     padding-bottom: 5px;
     max-height: 50px;
+    cursor: pointer;
+    margin: 3px;
+}
+
+.list-file {
+    display: inline-block;
+    padding: 10px;
+    padding-bottom: 5px;
+    max-height: 50px;
+    width: 100%;
     cursor: pointer;
     margin: 3px;
 }

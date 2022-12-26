@@ -261,7 +261,7 @@ const Branch = ({currentRepo, setBranchName}) => {
                             {
                                 branches.map(
                                     (branchName) => (
-                                        <li id='branch' title={'checkout to '+branchName} onClick={(e) => (checkout(branchName))}>{branchName}</li>
+                                        <li className='branch-li' title={'checkout to '+branchName} onClick={(e) => (checkout(branchName))}>{branchName}</li>
                                     )
                             )
                             }

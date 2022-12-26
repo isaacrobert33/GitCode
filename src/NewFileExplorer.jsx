@@ -17,7 +17,7 @@ const File = ({name, file_path, type, on_click}) => {
         icon = folder_icon;
     } else {
         icon = file_icon;
-        let images = ["png", "jpg", "jpeg"];
+        let images = ["png", "jpg", "jpeg", "svg", "ico"];
         for (let ext=0; ext<images.length; ext++) {
             if (name.includes(images[ext])) {
                 icon = `${host}/download_file?file_path=${file_path}`;
@@ -100,12 +100,27 @@ const NewFileExplorer = ({setEditorContent}) => {
     const [activeFile, setActiveFile] = useState("");
 
     const openFile = async () => {
-        hide_file_drop_down()
-        let path = currentPath;
-        let response = await fetch(`${host}/file_data?file_path=${path}`);
-        let json_data = await response.json();
-        setEditorContent(json_data.data.content, true, json_data.data.filename, path, json_data.data.repo_name, json_data.data.branch_name, json_data.data.repo_dir);
-        line_counter()
+        try {
+            hide_file_drop_down()
+            let images = ["png", "jpg", "jpeg", "svg", "ico"];
+            for (let ext=0; ext<images.length; ext++) {
+                if (path.toLowerCase().includes(images[ext])) {
+                    downloadFile(true);
+                    return;
+                }
+            }
+            let path = currentPath;
+            let response = await fetch(`${host}/file_data?file_path=${path}`);
+            let json_data = await response.json();
+            setEditorContent(json_data.data.content, true, json_data.data.filename, path, json_data.data.repo_name, json_data.data.branch_name, json_data.data.repo_dir);
+            line_counter();
+        } catch (error) {
+            let logger = document.getElementById("error-logger");
+            logger.innerHTML = error;
+            logger.style.display = "block";
+            
+            console.log(error);
+        }
     }
 
     const deleteFile = async () => {
@@ -116,11 +131,15 @@ const NewFileExplorer = ({setEditorContent}) => {
         getDirData(currentDir, "dir");
     }
 
-    const downloadFile = async () => {
+    const downloadFile = async (is_img=false) => {
         hide_file_drop_down()
         let download_link = `${host}/download_file?file_path=${activeFile}`;
         let dl = document.createElement("a");
         dl.href = download_link;
+        if (is_img === true) {
+            dl.target = "_blank";
+        }
+        
         document.body.appendChild(dl);
         dl.click();
         document.body.removeChild(dl)
@@ -223,8 +242,8 @@ const NewFileExplorer = ({setEditorContent}) => {
         let editorNode = document.getElementById("editor");
         let lineNumbering = document.getElementById("lineCounter");
         let lineCount = editorNode.value.split('\n').length;
-        let outarr = new Array();
-        if (lineCountCache != lineCount) {
+        let outarr = [];
+        if (lineCountCache !== lineCount) {
             for (let x = 0; x < lineCount; x++) {
                 outarr[x] = (x + 1) + '.';
             }

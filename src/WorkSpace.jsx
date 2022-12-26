@@ -279,7 +279,7 @@ function WorkSpace() {
                     <div className='language-opt'>
                         Select Language:
                         &nbsp; &nbsp;
-                        <select id="languages" className="languages" onChange={window.changeLanguage}>
+                        <select id="languages" className="languages">
                             {/* <option value="c"> C </option>
                             <option value="cpp"> C++ </option>
                             <option value="php"> PHP </option> */}
@@ -291,6 +291,7 @@ function WorkSpace() {
                 </div>
                 <p id='editor-container'>
                     <textarea id="lineCounter" wrap='off' readOnly>1.</textarea>
+                    <textarea className='editor' id="editor" wrap='off'></textarea>
                 </p>
                 
                 <span id='branch' title='active branch'>
