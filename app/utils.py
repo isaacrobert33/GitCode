@@ -12,7 +12,7 @@ import shutil
 import os
 # import requests
 
-HOMEPATH = "./repositories"
+HOMEPATH = "/home/robertix/mysite/repositories"
 
 def response_service(data=dict(), msg="No data", code=200):
     status = "success" if code < 400 else "error"
@@ -45,7 +45,7 @@ def clone_repository(repo_url: dict, username=None, pwd=None):
         repo.Repo.clone_from(repo_url, repo_dir)
     except Exception as e:
         return response_service(data={}, msg=str(e), code=500)
-    
+
     return response_service(data={"repo_path": repo_dir}, msg=f"{repo_name.capitalize()} cloned succesfully", code=200)
 
 def initialize_repo(json_data: dict):
@@ -69,7 +69,7 @@ def initialize_repo(json_data: dict):
 
     else:
         response = response_service(msg="Repo initialized successfully", data={"repo_dir": repo_dir, "branch_name": repo_instance.active_branch.name}, code=200)
-    
+
     response.status_code = 201
     response.headers["access-control-allow-origin"] = "*"
     return response
@@ -89,10 +89,10 @@ def commit_changes(json_data: dict):
     os.chdir("../")
     response = jsonify()
     try:
-        msg = repo_instance.git.commit("-m", json_data["commit_msg"], author=author)
+        msg = repo_instance.git.commit("-m", json_data["commit_msg"], author=author) if author else repo_instance.git.commit("-m", json_data["commit_msg"])
         response = response_service(msg="Changes commited succesfully", data={"repo_dir": repo_dir, "msg": msg}, code=200)
     except Exception as e:
-        msg = str(e).split("stdout: ")[1]
+        msg = str(e).split("stdout: ")[1] if "stdout" in str(e) else str(e).split("stderr: ")[1]
         response = response_service(msg="Failed to commit changes", data={"repo_dir": repo_dir, "msg": msg, "branch_name": repo_instance.active_branch.name}, code=200)
 
     return response
@@ -131,10 +131,10 @@ def switch_branch(json_data: dict):
     branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
     response = response_service(
         msg="Checked out to {branch_name} successfullly",
-        data={"repo_dir": repo_dir, "branch_name": branch_name, "msg": checkout}, 
+        data={"repo_dir": repo_dir, "branch_name": branch_name, "msg": checkout},
         code=200
         )
-    
+
     return response
 
 def pull_remote(json_data: dict):
@@ -182,7 +182,7 @@ def push_to_remote(json_data: dict):
 
     if not branch_name:
         branch_name = repo_instance.active_branch.name
-  
+
     try:
         msg = repo_instance.git.push("origin", branch_name)
     except Exception as e:
@@ -191,8 +191,8 @@ def push_to_remote(json_data: dict):
             msg = repo_instance.git.push("--set-upstream", "origin", branch_name)
         else:
             response = response_service(
-                msg="Failed to push to remote", 
-                data={"repo_dir": repo_dir, "branch_name": branch_name, "msg": str(e).split("stderr: ")[1]}, 
+                msg="Failed to push to remote",
+                data={"repo_dir": repo_dir, "branch_name": branch_name, "msg": str(e).split("stderr: ")[1]},
                 code=500
             )
             return response
@@ -200,7 +200,7 @@ def push_to_remote(json_data: dict):
     branch_name = repo_instance.active_branch.name
     branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
     response = response_service(
-        msg="Pushed changes successfullly", 
+        msg="Pushed changes successfullly",
         data={"msg": str(msg), "repo_dir": repo_dir, "branch_name": branch_name},
         code=200
         )
@@ -225,7 +225,7 @@ def get_status(repo_name: str):
             msg="Error fetching git status for current repo",
             code=500
             )
-        
+
         return response
 
     response = response_service(data={"msg": status}, msg="Fetched status succesfully", code=200)
@@ -250,7 +250,7 @@ def get_branches(repo_name: str):
             msg="Error fetching git branch for current repo",
             code=500
             )
-        
+
         return response
 
     response = response_service(data={"msg": branch}, msg="Fetched branches succesfully", code=200)
@@ -273,17 +273,21 @@ def get_file_content(file_path: str):
     repo_dir, repo_name, branch_name, file_path = "", "", "", os.path.join(HOMEPATH, file_path.lstrip("/"))
     filename = os.path.basename(file_path)
     if os.path.exists(file_path):
-        with open(file_path, "r") as f:
-            content = f.read()
-        
+        try:
+            with open(file_path, "r") as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            with open(file_path, "rb") as f:
+                content = str(f.read())
+
     else:
         content = "File path does not exist"
-        
+
     repos = os.listdir(HOMEPATH)
     for i in repos:
         if os.path.isfile(os.path.join(HOMEPATH, i)):
             repos.pop(repos.index(i))
-  
+
     for repos in repos:
         if repos in file_path:
             repo_name = file_path.split("/")[file_path.split("/").index("repositories")+1]
@@ -295,10 +299,10 @@ def get_file_content(file_path: str):
                 branch_name = ""
                 repo_name = ""
                 repo_dir = ""
-    
+
     branch_name = branch_name if len(branch_name) < 18 else f"{branch_name[:18]}..."
     response = response_service(
-        msg="Content fetched successfully", 
+        msg="Content fetched successfully",
         data={"filename": filename, "content": content, "branch_name": branch_name, "repo_name": repo_name, "repo_dir": repo_dir},
         code=200
         )
@@ -307,12 +311,12 @@ def get_file_content(file_path: str):
 def delete_file(file_path):
     error = None
     file_path = os.path.join(HOMEPATH, file_path.lstrip("/"))
-  
+
     if os.path.exists(file_path):
         os.remove(file_path)
     else:
         error = True
-    
+
     response = response_service(data={"msg": "File deleted successfully!"}, msg="File deleted successfully!" if not error else "Error deleting file!", code=200 if not error else 500)
     return response
 
@@ -321,7 +325,7 @@ def save_file_content(request):
     file_path = request.args.get("file_path")
     data = request.get_json().get("content")
     file_path = os.path.join(HOMEPATH, file_path.lstrip("/"))
-    
+
     if not request.args.get("is_dir"):
         if os.path.exists(file_path) and data:
             with open(file_path, "w") as f:
@@ -333,7 +337,7 @@ def save_file_content(request):
             f.close()
     else:
         os.mkdir(file_path)
-    
+
     response = response_service(data={}, msg="File saved successfully!" if not error else "Error saving file!", code=200 if not error else 500)
     return response
 
@@ -363,11 +367,11 @@ def explore_directory(dir_path):
         dir_list = os.listdir(dir_path)
         data = [{"name": file, "type": "file" if os.path.isfile(os.path.join(dir_path, file)) else "dir"} for file in dir_list]
     elif os.path.exists(dir_path) and os.path.isfile(dir_path):
-        response = get_file_content(dir_path)    
+        response = get_file_content(dir_path)
         return response
     else:
         data = []
-    
+
     data = sorted(data, key=lambda x: x['name'])
     data = [e for e in data if e["type"] == "dir"]+[e for e in data if e["type"] == "file"]
     response = response_service(msg="Directory retrieved successfully", data=data)
@@ -384,8 +388,8 @@ def toolbar_options():
         "git": [
             {_id: "clone", name: "Clone", info: "git clone"},
             {_id: "stage", name: "Stage", info: "git add"},
-            {_id: "commit", name: "Commit", info: "git commit -m"}, 
-            {_id: "push", name: "Push", info: "git push "}, 
+            {_id: "commit", name: "Commit", info: "git commit -m"},
+            {_id: "push", name: "Push", info: "git push "},
             {_id: "pull", name: "Pull", info: "git pull"},
             {_id: "checkout", name: "Checkout", info: "git checkout"},
             {_id: "status", name: "Status", info: "git status"},
