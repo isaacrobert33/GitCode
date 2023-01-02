@@ -1,9 +1,9 @@
 import './App.css';
-// import React, { useEffect } from "react";
+import React from "react";
 import WorkSpace from './WorkSpace';
 
 function App() {
-
+  console.log(process.env)
   return (
     <div className='App'>
       <WorkSpace />

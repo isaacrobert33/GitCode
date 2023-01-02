@@ -1,488 +1,497 @@
 *{
-    margin: 0;
+  margin: 0;
 }
 
 .header {
-    background: #55aabb;
-    text-align: left;
-    font-size: 14px;
-    font-weight: bold;
-    color: white;
-    padding: 4px;
-    font-family: sans-serif;
+  background: #55aabb;
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  padding: 4px;
+  font-family: sans-serif;
 }
 
 .control-panel {
-    background: lightgray;
-    padding: 3px;
-    font-family: sans-serif;
-    font-size: 13px;
-    display: flex;
+  background: lightgray;
+  padding: 3px;
+  font-family: sans-serif;
+  font-size: 13px;
+  display: flex;
 }
 .language-opt {
-    margin-left: 70%;
-    display: inline-flex;
+  margin-left: 70%;
+  display: inline-flex;
 }
 .tool-bar {
-    display: inline-flex;
-    margin-left: -40px;
+  display: inline-flex;
+  margin-left: -40px;
 }
 .languages {
-    background: white;
-    border: 1px solid gray;
-    height: 25px;
+  background: white;
+  border: 1px solid gray;
+  height: 25px;
 }
 
 .button-container {
-    padding: 4px;
-    display: inline-block;
-    margin-left: 80%;
+  padding: 4px;
+  display: inline-block;
+  margin-left: 80%;
 }
 
 #branch {
-    display: inline-block;
-    padding: 5px;
-    background-color: #55aabb;
-    margin-top: 0;
-    color: azure;
-    font-size: 12px;
+  display: inline-block;
+  padding: 5px;
+  background-color: #55aabb;
+  margin-top: 0;
+  color: azure;
+  font-size: 12px;
 }
 .run {
-    border-top: 10px solid white;
-    border-bottom: 10px solid white;
-    border-left: 20px solid #57a958;
-    height: 0px;
+  border-top: 10px solid white;
+  border-bottom: 10px solid white;
+  border-left: 20px solid #57a958;
+  height: 0px;
 }
 
 .terminal {
-    padding: 4px;
-    border: 2px solid gray;
-    min-height: 100px;
-    width: 99%;
-    resize: none;
-    background-color: #333;
-    font-family: cursive;
-    color: azure;
+  padding: 4px;
+  border: 2px solid gray;
+  min-height: 100px;
+  width: 99%;
+  resize: none;
+  background-color: #333;
+  font-family: cursive;
+  color: azure;
 
 }
 .branches {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 .branch-li {
-    list-style-type: none;
-    text-align: left;
-    background-color: grey;
-    border-bottom: 2px solid #112;
-    padding: 4px;
-    width: 100%;
-    cursor: pointer;
+  list-style-type: none;
+  text-align: left;
+  background-color: grey;
+  border-bottom: 2px solid #112;
+  padding: 4px;
+  width: 100%;
+  cursor: pointer;
 }
 .branch-li:hover {
-    background-color: beige;
-    color: #ff6347;
+  background-color: beige;
+  color: #ff6347;
 }
 .tool-bar ul {
-    display: flex;
-    flex: wrap;
-    margin: 0;
+  display: flex;
+  flex: wrap;
+  margin: 0;
 }
 .tool-bar ul li {
-    list-style-type: none;
-    padding: 3px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
+  list-style-type: none;
+  padding: 3px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 .dropdown {
-    width: 100px;
-    background-color: azure;
-    border-radius: 8px;
-    box-shadow: 1px 8px 16px 0px rgba(0,0,0,0.2);
-    padding-bottom: 8px;
-    padding-top: 8px;
-    padding-left: 0;
-    position: absolute;
-    z-index: 6;
-    min-width: 160px;
-    transition: .2s margin-top;
-    display: none;
-    margin-left: 2%;
-    margin-top: 2%
+  width: 100px;
+  background-color: azure;
+  border-radius: 8px;
+  box-shadow: 1px 8px 16px 0px rgba(0,0,0,0.2);
+  padding-bottom: 8px;
+  padding-top: 8px;
+  padding-left: 0;
+  position: absolute;
+  z-index: 6;
+  min-width: 160px;
+  transition: .2s margin-top;
+  display: none;
+  margin-left: 2%;
+  margin-top: 2%
 }
 
 .dropdown .dropdown-item {
-    cursor: pointer;
-    padding: 5px;
-    display: block;
-    text-decoration: none;
+  cursor: pointer;
+  padding: 5px;
+  display: block;
+  text-decoration: none;
 }
 
 .dropdown .dropdown-item:hover {
-    background-color: #aaa;
+  background-color: #aaa;
 }
 
 #overlay {
-    width: 100%;
-    height: 100%;
-    background-color: transparent;
-    z-index: 3;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  z-index: 3;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow: hidden;
 }
 a {
-    color: black;
+  color: black;
 }
 i {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .overlay {
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, .6);
-    width: 100%;
-    height: 100%;
-    z-index: 6;
-    overflow: hidden;
-    position: fixed;
-    display: none;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, .6);
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  overflow: hidden;
+  position: fixed;
+  display: none;
 }
 
 .overlay .main-window {
-    width: 50%;
-    height: 60%;
-    margin-left: 25%;
-    margin-top: 5%;
-    background-color: azure;
-    z-index: 7;
-    border-radius: 15px;
-    padding: 10px;
-    text-align: center;
+  width: 50%;
+  height: 60%;
+  margin-left: 25%;
+  margin-top: 5%;
+  background-color: azure;
+  z-index: 7;
+  border-radius: 15px;
+  padding: 10px;
+  text-align: center;
 }
 
 #close-btn {
-    background-color: tomato;
-    color: azure;
-    font-size: 25px;
-    float: right;
-    margin-right: 10px;
-    cursor: pointer;
-    box-shadow: 2px 0px 2px rgba(0,0,0,0.2);
-    border-top-right-radius: 8px;
+  background-color: tomato;
+  color: azure;
+  font-size: 25px;
+  float: right;
+  margin-right: 10px;
+  cursor: pointer;
+  box-shadow: 2px 0px 2px rgba(0,0,0,0.2);
+  border-top-right-radius: 8px;
 }
 
 .directory-content {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-    height: 75%;
-    overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 75%;
+  overflow: auto;
 }
 
 .file {
-    display: inline-block;
-    padding: 10px;
-    padding-bottom: 5px;
-    max-height: 50px;
-    cursor: pointer;
-    margin: 3px;
+  display: inline-block;
+  padding: 10px;
+  padding-bottom: 5px;
+  max-height: 50px;
+  cursor: pointer;
+  margin: 3px;
 }
 
 .list-file {
-    display: inline-block;
-    padding: 10px;
-    padding-bottom: 5px;
-    max-height: 50px;
-    width: 100%;
-    cursor: pointer;
-    margin: 3px;
+  display: inline-block;
+  padding: 10px;
+  padding-bottom: 5px;
+  max-height: 50px;
+  width: 100%;
+  cursor: pointer;
+  margin: 3px;
 }
 
 .window-icon {
-    float: left;
-    margin-left: 10px;
-    width: 50px;
-    height: 50px;
+  float: left;
+  margin-left: 10px;
+  width: 50px;
+  height: 50px;
 }
 .text-input {
-    display: block;
-    margin: 15px;
-    border-radius: 5px;
-    width: 250px;
-    height: 25px;
-    border: none;
-    background-color: #ccc;
+  display: block;
+  margin: 15px;
+  border-radius: 5px;
+  width: 250px;
+  height: 25px;
+  border: none;
+  background-color: #ccc;
 }
 label {
-    color: #444;
-    font-size: 12px;
+  color: #444;
+  font-size: 12px;
 }
 .git-check {
-    display: block;
-    margin: 15px;
-    border-radius: 5px;
-    text-align: left;
+  display: block;
+  margin: 15px;
+  border-radius: 5px;
+  text-align: left;
 }
 #git-branch {
-    display: none;
+  display: none;
 }
 .git-btn {
-    border-radius: 6px;
-    background-color: #55bb55;
-    width: 80px;
-    height: 25px;
-    color: azure;
-    border: none;
-    float: left;
-    margin-left: 14px;
+  border-radius: 6px;
+  background-color: #55bb55;
+  width: 80px;
+  height: 25px;
+  color: azure;
+  border: none;
+  float: left;
+  margin-left: 14px;
 }
 
 .git-ui {
-    display: block;
-    margin: 40px;
+  display: block;
+  margin: 40px;
 }
 
 #close-toast-btn {
-    float: right;
-    font-size: 18px;
-    font-weight: bold;
-    margin-right: 10px;
-    cursor: pointer;
+  float: right;
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 10px;
+  cursor: pointer;
 }
 
 .toast {
-    min-width: 200px;
-    min-height: 25px;
-    background-color: azure;
-    box-shadow: 1px 0 5px rgba(0, 0, 0, .7);
-    border-radius: 5px;
-    position: fixed;
-    margin-left: 30%;
-    bottom: -90px;
-    padding: 10px;
-    transition: bottom .3s;
-    display: none;
-    z-index: 6;
-    opacity: 0.7;
+  min-width: 200px;
+  min-height: 25px;
+  background-color: azure;
+  box-shadow: 1px 0 5px rgba(0, 0, 0, .7);
+  border-radius: 5px;
+  position: fixed;
+  margin-left: 30%;
+  bottom: -90px;
+  padding: 10px;
+  transition: bottom .3s;
+  display: none;
+  z-index: 6;
+  opacity: 0.7;
 }
 .nav-container {
-    background-color: rgba(0, 0, 20, .5);
-    padding: 2px;
-    border-radius: 4px;
-    width: 50px;
-    text-align: center;
-    margin-left: 45%;
+  background-color: rgba(0, 0, 20, .5);
+  padding: 2px;
+  border-radius: 4px;
+  width: 50px;
+  text-align: center;
+  margin-left: 45%;
 }
 .navigator {
-    font-weight: bold;
-    font-size: 20px;
-    cursor: pointer;
-    margin: 3px;
-    color:#55a955;
+  font-weight: bold;
+  font-size: 20px;
+  cursor: pointer;
+  margin: 3px;
+  color:#55a955;
 }
 
 #text-field {
-    position: fixed;
-    top: 70%;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    margin-left: -25px;
+  position: fixed;
+  top: 70%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  margin-left: -25px;
 }
 
 #filename {
-    border-right: 0px;
-    outline: none;
-    border: 0;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border: 2px solid #55a955;
-    height: 20px;
-    width: 150px;
-    margin: 2px;
+  border-right: 0px;
+  outline: none;
+  border: 0;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border: 2px solid #55a955;
+  height: 20px;
+  width: 150px;
+  margin: 2px;
 }
 #savefile {
-    background-color: #55a955;
-    color: azure;
-    border: 0;
-    padding: 4px;
-    padding-right: 0;
-    margin-right: 0;
-    margin: 2px;   
+  background-color: #55a955;
+  color: azure;
+  border: 0;
+  padding: 4px;
+  padding-right: 0;
+  margin-right: 0;
+  margin: 2px;   
 }
 #savefolder {
-    background-color: #55a955;
-    color: azure;
-    border: 0;
-    margin: 0;
-    padding: 2px;
-    
+  background-color: #55a955;
+  color: azure;
+  border: 0;
+  margin: 0;
+  padding: 2px;
+  
 }
 
 #savefile:hover {
-    background-color: azure;
-    color: black;
-    border: 3px double #55a955;
-    padding: 2px;
-    padding-right: 0;
+  background-color: azure;
+  color: black;
+  border: 3px double #55a955;
+  padding: 2px;
+  padding-right: 0;
 }
 
 #upload {
-    display: inline-block;
+  display: inline-block;
 }
 
 #upload-btn {
-    background-color: #55a955;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
-    color: azure;
-    padding: 4px;
-    margin: 2px;
+  background-color: #55a955;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+  color: azure;
+  padding: 4px;
+  margin: 2px;
 
 }
 #upload-btn:hover {
-    background-color: azure;
-    color: black;
-    border: 3px double #55a955;
-    padding: 2px;
+  background-color: azure;
+  color: black;
+  border: 3px double #55a955;
+  padding: 2px;
 }
 
 .file-drop-down {
-    min-width: 100px;
-    min-height: 120px;
-    box-shadow: -2px 2px 6px 2px #333;
-    background-color: inherit;
-    right: 50%;
-    top: 40%;
-    z-index: 9;
-    position: absolute;
-    border-radius: 15px;
-    padding: 0;
-    display: none;
-    font-size: 12px;
+  min-width: 100px;
+  min-height: 120px;
+  box-shadow: -2px 2px 6px 2px #333;
+  background-color: inherit;
+  right: 50%;
+  top: 30%;
+  z-index: 9;
+  position: absolute;
+  border-radius: 15px;
+  padding: 0;
+  display: none;
+  font-size: 12px;
 }
 
 .file-drop-down ul {
-    list-style-type: none;
-    text-decoration: none;
-    text-align: left;
-    margin: 0;
-    padding: 0;
-    padding-top: 7px;
-    cursor: pointer;
+  list-style-type: none;
+  text-decoration: none;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  padding-top: 7px;
+  cursor: pointer;
 }
 
 .file-drop-down ul li {
-    padding: 5px;
+  padding: 5px;
 }
 
 .file-drop-down ul li:hover {
-    background-color: grey;
+  background-color: grey;
 }
 
 #lineCounter {
-    display: none;
+  display: none;
+}
+
+.find {
+  box-shadow: 1px 2px 3px 3px black;
+  position: absolute;
+  top: 7%;
+  right: 4%;
+  z-index: 15px;
+  display: none;
 }
 
 @media only screen and (max-width: 600px) {
-    .language-opt {
-        margin-left: 5%;
-        display: inline-flex;
-    }
+  .language-opt {
+      margin-left: 5%;
+      display: inline-flex;
+  }
 
-    .run {
-        margin-left: 90%;
-    }
-    .dropdown {
-        margin-top: 9%;
-    }
-    .toast {
-        margin-left: 5%;
-        min-width: 140px;
-        min-height: 20px;
-    }
-    .close-toast-btn {
-        margin-right: 5px;
-    }
+  .run {
+      margin-left: 90%;
+  }
+  .dropdown {
+      margin-top: 9%;
+  }
+  .toast {
+      margin-left: 25%;
+      min-width: 140px;
+      min-height: 20px;
+  }
+  .close-toast-btn {
+      margin-right: 5px;
+  }
 
-    .button-container {
-        margin-left: 45%;
-    }
+  .button-container {
+      margin-left: 45%;
+  }
 
-    .overlay .main-window {
-        width: 85%;
-        height: 90%;
-        margin-left: 5%;
-        margin-top: 5%;
-        background-color: azure;
-        z-index: 7;
-        border-radius: 15px;
-        padding: 10px;
-        text-align: center;
-    }
+  .overlay .main-window {
+      width: 85%;
+      height: 90%;
+      margin-left: 5%;
+      margin-top: 5%;
+      background-color: azure;
+      z-index: 7;
+      border-radius: 15px;
+      padding: 10px;
+      text-align: center;
+  }
 
-    .text-input {
-        display: block;
-        margin: 15px;
-        border-radius: 5px;
-        width: 150px;
-        height: 25px;
-        border: none;
-        background-color: #ccc;
-    }
+  .text-input {
+      display: block;
+      margin: 15px;
+      border-radius: 5px;
+      width: 150px;
+      height: 25px;
+      border: none;
+      background-color: #ccc;
+  }
 
-    .editor, #lineCounter {
-        /* overflow: auto; */
-        resize: none;
-        color: azure;
-        outline: none;
-        line-height: 1.2;
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        border-radius: 0;
-        height: 75vh;
-    }
+  .editor, #lineCounter {
+      /* overflow: auto; */
+      resize: none;
+      color: azure;
+      outline: none;
+      line-height: 1.2;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      border-radius: 0;
+      height: 75vh;
+  }
 
-    #lineCounter:focus-visible,
-    .editor:focus-visible {
-        outline:none;
-    }
+  #lineCounter:focus-visible,
+  .editor:focus-visible {
+      outline:none;
+  }
 
-    #lineCounter {
-        display: flex;
-        border-color: transparent;
-        overflow-y: hidden;
-        text-align: right;
-        box-shadow: none;
-        background-color: #d8d8d8;
-        position: absolute;
-        width: 2rem;
-        /* Determine appearance of line counter */
-        background-color: #334;
-        color:#928869;
-        border-right: 2px solid cyan;
-    }
+  #lineCounter {
+      display: flex;
+      border-color: transparent;
+      overflow-y: hidden;
+      text-align: right;
+      box-shadow: none;
+      background-color: #d8d8d8;
+      position: absolute;
+      width: 2rem;
+      /* Determine appearance of line counter */
+      background-color: #334;
+      color:#928869;
+      border-right: 2px solid cyan;
+  }
 
-    .editor {
-        padding-left: calc(2rem + 3px);
-        width:100%;
-        /* Determine appearance of code editor */
-        border-color:#272822;
-        background-color: #112;
-    }
+  .editor {
+      padding-left: calc(2rem + 3px);
+      width:100%;
+      /* Determine appearance of code editor */
+      border-color:#272822;
+      background-color: #112;
+  }
 
-    #text-field {
-        position: fixed;
-        top: 90%;
-        
-    }
+  #text-field {
+      position: fixed;
+      top: 90%;
+      
+  }
 
 }

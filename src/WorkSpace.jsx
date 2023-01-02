@@ -9,8 +9,9 @@ import gitfork from './gitfork.svg'
 // import git_icon from './git-icon.svg';
 // import git_folder from './git-dir.svg';
 
-// var host = "http://127.0.0.1:5000";
-var host = "";
+var host = "http://172.20.10.5:5000"
+// "http://127.0.0.1:5000"
+// var host = "";
 
 const DropDown = ({ id, list, callback }) => {
     return (
@@ -36,13 +37,10 @@ const PostInit = (json) => {
     }
 };
 
-// var GetInit = {
-//     method: "GET",
-//     headers: {
-//         "Accept": "application/json",
-//         "Content-Type": "application/json"
-//     }
-// };
+var originalContent;
+var editorStack = [];
+var editorRedostack = [];
+
 
 function hideToast() {
     let toast = document.getElementById("toast");
@@ -60,7 +58,7 @@ function popToast() {
     toast.style.display = "block";
     setTimeout(
         () => (
-            toast.style.bottom = "5%"
+            toast.style.bottom = "50%"
         ), 500
     )
     setTimeout(
@@ -72,14 +70,14 @@ function popToast() {
 }
 
 function WorkSpace() {
-    const [toolbarData, setToolbarData] = useState({file: [], git: [], help: []});
+    const [toolbarData, setToolbarData] = useState({file: [], git: [], help: [], edit_tab: []});
     // const [currentDir, setCurrentDir] = useState("./repositories");
     // const [explorerData, setExplorerData] = useState([]);
     const [dropdown, setDropdown] = useState("");
     const [gitOperation, setGitOperation] = useState("");
     const [currentRepo, setCurrentRepo] = useState("Repo");
     const [branchName, setBranchName] = useState("<branch>");
-    const [repoDir, setRepoDir] = useState("");
+    // const [repoDir, setRepoDir] = useState("");
     const [fileName, setFileName] = useState("Unknown");
     const [filePath, setFilePath] = useState("");
     
@@ -125,14 +123,14 @@ function WorkSpace() {
         } catch (error) {
             document.getElementById("editor").value = content;
         }
-        
+        originalContent = content;
         if (fromFileExp === true) {
             document.getElementById("file-explorer").style.display = "none";
             document.getElementById("new-file-explorer").style.display = "none";
         }
         setCurrentRepo(repo_name);
         setBranchName(branch_name);
-        setRepoDir(repo_dir);
+        // setRepoDir(repo_dir);
         setFileName(file_name);
         setFilePath(file_path);
     }
@@ -236,24 +234,141 @@ function WorkSpace() {
                 }
                 
             }
+        } else if (id === "undo") {
+            return (e) => {
+                let prevContent = editorStack.pop();
+                const editorNode = document.getElementById("editor");
+                console.log(prevContent);
+                if (prevContent){
+                    editorNode.value = prevContent;
+                    if (editorNode.value === prevContent && editorStack.slice(-1)[0]) {
+                        prevContent = editorStack.pop();
+                        editorNode.value = prevContent;
+                    }
+                    editorRedostack.push(prevContent);
+                } else {
+                    editorNode.value = originalContent;
+                }
+                hideDropdown(dropdown);
+            }
+        } else if (id === "redo") {
+            return (e) => {
+                const editorNode = document.getElementById("editor");
+                let redoContent = editorRedostack.pop();
+                if (redoContent){
+                    editorNode.value = redoContent;
+                    editorStack.push(redoContent);
+                }
+                hideDropdown(dropdown);
+            }
+        } else if (id === "find") {
+            return (e) => {
+                hideDropdown(dropdown);
+                document.getElementById("find-wdg").style.display = "block";
+            }
         }
 
     }
-    // const startObserver = () => {
-    //     var observer = new MutationObserver(function(mutations) {
-    //         mutations.forEach(function(mutationRecord) {
-    //             console.log("style changed");
-    //         })
-    //     })
-    //     var target1 = document.getElementById("file-explorer");
-    //     var target2 = document.getElementById("new-file-explorer");
-    //     observer.observe(target1, {attribute: true, attributeFilter: ['style']});
-    //     observer.observe(target2, {attribute: true, attributeFilter: ['style']});
-    // }
+    var timeoutId;
+    const startCacheTimer = () => {
+        const editorNode = document.getElementById("editor");
+        timeoutId = setTimeout((e) => {
+            let cont = editorNode.value;
+            editorStack.push(cont);
+            console.log("Drafted");
+        }, 5000)
+    }
+    const editorNodeObs = () => {
+        let observer = new MutationObserver(function(mutations, obs) {
+            const editorNode = document.getElementById("editor");
+            mutations.forEach(function(mutationRecord) {
+                if (editorNode) {
+                    editorNode.addEventListener('input', (e) => {
+                        clearTimeout(timeoutId);
+                        startCacheTimer()
+                    });
+                    obs.disconnect();
+                    return ;
+                }
+                    
+            })
+        })
+        
+        observer.observe(document, {childList: true, subtree: true});
+    }
+    var callback;
+    const findInputObs = () => {
+        let observer = new MutationObserver(function(mutations, obs) {
+            const findInput = document.getElementById("find-input");
+            mutations.forEach(function(mutationRecord) {
+                if (findInput) {
+                    findInput.addEventListener("keypress", (event) => {
+                        if (event.key === "Enter" && !callBack) {
+                            event.preventDefault();
+                            console.log("Press")
+                            callBack = true;
+                            // searchKeyword(event);
+                        }
+                    })
+                    obs.disconnect();
+                    return ;
+                }
+                    
+            })
+        })
+        
+        observer.observe(document, {childList: true, subtree: true});
+    }
+
+
+    var prevIndex, matchPos=0;
+    const searchKeyword = (inputNode)  => {
+        const editorNode = document.getElementById("editor");
+        const findInput = document.getElementById("find-input");
+        editorNode.textContent = editorNode.value;
+        let index, searched, newIndex;
+        let keyword = findInput.value;
+        
+        if (prevIndex) {
+            searched = editorNode.value.slice(0, prevIndex);
+            newIndex = editorNode.value.slice(prevIndex).indexOf(keyword);
+            index = newIndex+searched.length;
+        } else {
+            index = editorNode.value.indexOf(keyword);
+        }
+        console.log("Index:", index, "prevIndex", prevIndex);
+        if (index !== -1) {
+            // const range = document.createRange();
+            // range.setStart(editorNode.firstChild, index);
+            // range.setEnd(editorNode.firstChild, keyword.length);
+            // const selection = window.getSelection();
+            // selection.removeAllRanges();
+            // selection.addRange(range);
+            editorNode.setSelectionRange(index, index + keyword.length);
+            // document.execCommand("backColor", false, "yellow");
+            prevIndex = index+keyword.length;
+            matchPos += 1;
+            let match = editorNode.value.split(keyword).length - 1;
+            let eng;
+            if (match < 2) {
+                eng = "match";
+            } else {
+                eng = "matches"
+            }
+            document.getElementById("matches").innerHTML = `${matchPos}/${match} ${eng}`
+    
+        } else {
+            prevIndex = 0;
+            matchPos = 0;
+            document.getElementById("matches").innerHTML = "No match!";
+        }
+        
+    }
 
     useEffect(() => {
         getToolbarData();
-        
+        editorNodeObs();
+        findInputObs();
     }, [])
     
     return (
@@ -267,11 +382,13 @@ function WorkSpace() {
                 <div className="control-panel">
                     <DropDown id="file" list={toolbarData.file} callback={callBack} />
                     <DropDown id="git" list={toolbarData.git} callback={callBack} />
+                    <DropDown id="edit" list={toolbarData.edit_tab} callback={callBack} />
                     <DropDown id="help" list={toolbarData.help} callback={callBack} />
                     <div className="tool-bar">
                         <ul>
                             <li onClick={(e) => {showDropdown("file")}}>File</li>
                             <li onClick={(e) => {showDropdown("git")}}>Git</li>
+                            <li onClick={(e) => {showDropdown("edit")}}>Edit</li>
                             <li onClick={(e) => {showDropdown("help")}}>Help</li>
                             {/* <li onClick={(e) => {popToast()}}>Toast</li> */}
                         </ul>
@@ -292,6 +409,12 @@ function WorkSpace() {
                 <p id='editor-container'>
                     <textarea id="lineCounter" wrap='off' readOnly>1.</textarea>
                     <textarea className='editor' id="editor" wrap='off'></textarea>
+                    <div id={"find-wdg"} className='find'>
+                        <input style={{borderRadius: "5px"}} id='find-input' type={"text"} placeholder={"Find"}/>
+                        <span style={{cursor: "pointer", color:  "cyan", fontSize: "20px", fontWeight: "bold", }} onClick={(e) => {document.getElementById("find-wdg").style.display = "none"}}>&times;</span>
+                        <h5 style={{color: "cyan"}} id='matches'></h5>
+                    </div>
+                   
                 </p>
                 
                 <span id='branch' title='active branch'>

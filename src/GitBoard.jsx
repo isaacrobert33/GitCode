@@ -6,8 +6,9 @@ import './App.css';
 // import { useState } from 'react';
 import git_icon from './git-icon.svg';
 
-// var host = "http://127.0.0.1:5000";
-var host = "";
+var host = "http://172.20.10.5:5000"
+// "http://127.0.0.1:5000"
+// var host = "";
 
 const PostInit = (json) => {
     return {
@@ -45,7 +46,7 @@ function popToast(msg) {
     toast.style.display = "block";
     setTimeout(
         () => (
-            toast.style.bottom = "5%"
+            toast.style.bottom = "50%"
         ), 500
     )
     setTimeout(

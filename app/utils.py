@@ -13,6 +13,8 @@ import os
 # import requests
 
 HOMEPATH = "/home/robertix/mysite/repositories"
+if not os.path.exists(HOMEPATH):
+    HOMEPATH = "./repositories"
 
 def response_service(data=dict(), msg="No data", code=200):
     status = "success" if code < 400 else "error"
@@ -385,6 +387,11 @@ def toolbar_options():
             {_id: "new_file", name: "New File", info: "Create a new file"},
             {_id: "save", name: "Save", info: "Save file"}
             ],
+        "edit_tab": [
+            {_id: "undo", name: "Undo", info: "Undo changes"},
+            {_id: "redo", name: "Redo", info: "Redo changes"},
+            {_id: "find", name: "Find", info: "Find in text"}
+        ],
         "git": [
             {_id: "clone", name: "Clone", info: "git clone"},
             {_id: "stage", name: "Stage", info: "git add"},

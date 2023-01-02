@@ -1,20 +1,24 @@
-var editor, editorNode;
+var editor, editorNode, editorSet;
 
-window.onload = function() {
-    editorNode = document.getElementById("editor");
-    // try {
-    //     editorNode = document.createElement("textarea");
-    //     editorNode.id = "editor";
-    //     editorNode.className = "editor";
-    //     editorNode.wrap = "off";
-    // } catch (error) {
-    //     let logger = document.getElementById("error-logger");
-    //     logger.innerHTML = error;
-    //     logger.style.display = "block";
-        
-    //     console.log(error);
-    // }
-    
+const startObserver = () => {
+    var observer = new MutationObserver(function(mutations, obs) {
+        const editorNode = document.getElementById("editor");
+        mutations.forEach(function(mutationRecord) {
+            if (editorNode && !editorSet) {
+                console.log("editornode added...");
+                initialize_editor();
+                obs.disconnect();
+                return ;
+            }
+        })
+    })
+    observer.observe(document, {childList: true, subtree: true});
+}
+
+const initialize_editor = () => {
+    console.log("initialized...")
+    editorSet = true;
+    const editorNode = document.getElementById("editor");
     if (window.screen.width > 600) {
         document.getElementById("lineCounter").style.display = "none";
         editor = CodeMirror.fromTextArea(
@@ -35,8 +39,14 @@ window.onload = function() {
             
             // Synchronize scrollling
             editorNode.addEventListener('scroll', () => {
-                lineNumbering.scrollTop = editorNode.scrollTop;
-                lineNumbering.scrollLeft = editorNode.scrollLeft;
+                try {
+                    lineNumbering.scrollTop = editorNode.scrollTop;
+                    lineNumbering.scrollLeft = editorNode.scrollLeft;
+                } catch (error) {
+                    console.log("Scrolling...");
+                    console.log(error);
+                }
+                
             });
 
             // Counting function
@@ -58,14 +68,17 @@ window.onload = function() {
             line_counter()
         } catch (error) {
             let logger = document.getElementById("error-logger");
-            logger.innerHTML = error;
-            logger.style.display = "block";
-            
             console.log(error);
+            logger.style.display = "block";
+            logger.innerHTML = error;
+            
         }
         
     }
-    
+}
+
+window.onload = function() {
+    startObserver()
 }
 
 

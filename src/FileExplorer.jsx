@@ -5,8 +5,8 @@ import file_icon from './file-icon.png';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
-// var host = "http://127.0.0.1:5000";
-var host = "";
+var host = "http://172.20.10.5:5000"
+// var host = "";
 
 const File = ({name, file_path, type, on_click}) => {
     let icon;
@@ -87,7 +87,7 @@ function popToast(msg) {
     toast.style.display = "block";
     setTimeout(
         () => (
-            toast.style.bottom = "5%"
+            toast.style.bottom = "50%"
         ), 500
     )
     setTimeout(
