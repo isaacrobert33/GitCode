@@ -9,9 +9,10 @@ import gitfork from './gitfork.svg'
 // import git_icon from './git-icon.svg';
 // import git_folder from './git-dir.svg';
 
-var host = "http://172.20.10.5:5000"
+// var host = "http://172.20.10.5:5000"
 // "http://127.0.0.1:5000"
-// var host = "";
+// var process.env.REACT_APP_HOST;
+var host = "";
 
 const DropDown = ({ id, list, callback }) => {
     return (

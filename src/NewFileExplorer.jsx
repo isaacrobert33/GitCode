@@ -7,9 +7,11 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { upload } from '@testing-library/user-event/dist/upload';
 
-var host = "http://172.20.10.5:5000"
+// var host = "http://172.20.10.5:5000"
 // "http://127.0.0.1:5000"
-// var host = "";
+// var = process.env.REACT_APP_HOST;
+var host = "";
+
 
 
 const File = ({name, file_path, type, on_click}) => {
