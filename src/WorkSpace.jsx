@@ -1,18 +1,16 @@
 import React from 'react';
 import './App.css';
 import { useState, useEffect } from 'react';
+// import { useImmer } from "use-immer";
 import FileExplorer from './FileExplorer';
 import NewFileExplorer from './NewFileExplorer';
 import GitBoard from './GitBoard';
 import Toast from './Toast';
 import gitfork from './gitfork.svg'
-// import git_icon from './git-icon.svg';
-// import git_folder from './git-dir.svg';
 
-// var host = "http://172.20.10.5:5000"
-// "http://127.0.0.1:5000"
+var host = "http://172.20.10.5:5000"
 // var process.env.REACT_APP_HOST;
-var host = "";
+// var host = "";
 
 const DropDown = ({ id, list, callback }) => {
     return (
@@ -24,6 +22,15 @@ const DropDown = ({ id, list, callback }) => {
                 ))
             }
         </div>
+    )
+}
+
+const Tab = ({title}) => {
+    return (
+        <li className='tab-box'>
+            {title}
+            <span id='tab-annul' title='close tab'>&times;</span>
+        </li>
     )
 }
 
@@ -81,6 +88,7 @@ function WorkSpace() {
     // const [repoDir, setRepoDir] = useState("");
     const [fileName, setFileName] = useState("Unknown");
     const [filePath, setFilePath] = useState("");
+    const [currentTabs, setTabs] = useState([fileName]);
     
     const getToolbarData = async () => {
         const response = await fetch(`${host}/toolbar_opt`);
@@ -117,7 +125,15 @@ function WorkSpace() {
         setDropdown(id);
     }
 
+    const openNewTab = (file_name) => {
+        let updatedTabs = [...currentTabs, file_name];
+        console.log(updatedTabs);
+        setTabs(updatedTabs);
+    }
+
     function setEditorContent(content, fromFileExp=false, file_name, file_path, repo_name, branch_name="", repo_dir="") {
+        openNewTab(file_name);
+        console.log(currentTabs);
         try {
             document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue(content);
             console.log(content);
@@ -131,7 +147,6 @@ function WorkSpace() {
         }
         setCurrentRepo(repo_name);
         setBranchName(branch_name);
-        // setRepoDir(repo_dir);
         setFileName(file_name);
         setFilePath(file_path);
     }
@@ -379,7 +394,7 @@ function WorkSpace() {
             <GitBoard operation={gitOperation} currentRepo={currentRepo} branch={setBranchName}/>
             <Toast msg={"Cloned successfully"}/>
             <div id='main'>
-                <div className="header"> <i>{fileName}</i> - {currentRepo} - GitCode IDE </div>
+                <div className="header">{currentRepo} - GitCode IDE </div>
                 <div className="control-panel">
                     <DropDown id="file" list={toolbarData.file} callback={callBack} />
                     <DropDown id="git" list={toolbarData.git} callback={callBack} />
@@ -394,21 +409,42 @@ function WorkSpace() {
                             {/* <li onClick={(e) => {popToast()}}>Toast</li> */}
                         </ul>
                     </div>
-                    <div className='language-opt'>
+                    {/* <div className='language-opt'>
                         Select Language:
-                        &nbsp; &nbsp;
+                        &nbsp;
                         <select id="languages" className="languages">
                             {/* <option value="c"> C </option>
                             <option value="cpp"> C++ </option>
-                            <option value="php"> PHP </option> */}
+                            <option value="php"> PHP </option> 
                             <option value="python"> Python </option>
-                            {/* <option value="node"> Node JS </option> */}
+                            <option value="node"> Node JS </option> 
                         </select>
+                    </div> */}
+                    <hr></hr>
+                    <div className='tabs'>
+                        {
+                            currentTabs?.length > 0 ? (
+                                <ul>
+                                    {
+                                        currentTabs.map(
+                                            (tab_title) => (
+                                                <Tab title={tab_title}/>
+                                            )
+                                        )
+                                    }
+                                </ul>
+                            ) : (
+                                <>{currentTabs}</>
+                            )
+                        }
+                        
+                        {/* <Tab title={fileName}/> */}
+                        
                     </div>
                     
                 </div>
                 <p id='editor-container'>
-                    <textarea id="lineCounter" wrap='off' readOnly>1.</textarea>
+                    <textarea id="lineCounter" wrap='off' readOnly>1</textarea>
                     <textarea className='editor' id="editor" wrap='off'></textarea>
                     <div id={"find-wdg"} className='find'>
                         <input style={{borderRadius: "5px"}} id='find-input' type={"text"} placeholder={"Find"}/>

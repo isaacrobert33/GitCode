@@ -2,35 +2,42 @@
   margin: 0;
 }
 
+body {
+  background-color: #121212;
+}
 .header {
-  background: #55aabb;
+  background: #ed7d3a;
   text-align: left;
   font-size: 14px;
   font-weight: bold;
-  color: white;
+  color: #121212;
   padding: 4px;
   font-family: sans-serif;
+  text-align: center;
 }
 
 .control-panel {
-  background: lightgray;
-  padding: 3px;
+  background: #333344;
+  /* padding: 3px; */
   font-family: sans-serif;
   font-size: 13px;
-  display: flex;
+  color: azure;
 }
+
 .language-opt {
-  margin-left: 70%;
-  display: inline-flex;
+  right: 20px;
+  display: inline-block;
 }
+
 .tool-bar {
   display: inline-flex;
   margin-left: -40px;
 }
 .languages {
-  background: white;
+  background: azure;
   border: 1px solid gray;
-  height: 25px;
+  height: 20px;
+  border-radius: 5px;
 }
 
 .button-container {
@@ -80,7 +87,7 @@
 }
 .branch-li:hover {
   background-color: beige;
-  color: #ff6347;
+  color: #ed7d3a;
 }
 .tool-bar ul {
   display: flex;
@@ -141,7 +148,13 @@ a {
 i {
   font-size: 14px;
 }
-
+hr {
+  color: #121212;
+  width: 100%;
+  margin-left: 0;
+  padding-left: 0;
+  border: 0.5px solid black;
+}
 .overlay {
   top: 0;
   bottom: 0;
@@ -169,7 +182,7 @@ i {
 }
 
 #close-btn {
-  background-color: tomato;
+  background-color: #ed7d3a;
   color: azure;
   font-size: 25px;
   float: right;
@@ -401,6 +414,36 @@ label {
   display: none;
 }
 
+.tabs {
+  bottom: 0;
+}
+.tabs ul {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  display: block;
+}
+
+.tab-box {
+  list-style-type: none;
+  display: inline-block;
+  border-right: 1px solid #121212;
+  border-bottom: 2px solid #ed7d3a;
+  padding-right: 5px;
+  padding-left: 16px;
+  padding-bottom: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#tab-annul {
+  padding: 2px;
+  color: #ed7d3a;
+  font-size: 15px;
+  display: inline-block;
+  margin-left: 8px;
+}
+
 @media only screen and (max-width: 600px) {
   .language-opt {
       margin-left: 5%;
@@ -457,7 +500,7 @@ label {
       box-sizing: border-box;
       -moz-box-sizing: border-box;
       border-radius: 0;
-      height: 75vh;
+      height: 70vh;
   }
 
   #lineCounter:focus-visible,
@@ -476,8 +519,9 @@ label {
       width: 2rem;
       /* Determine appearance of line counter */
       background-color: #334;
-      color:#928869;
-      border-right: 2px solid cyan;
+      color: #928869;
+      padding-right: 5px;
+      border-right: 2px solid #ed7d3a;
   }
 
   .editor {
@@ -485,7 +529,7 @@ label {
       width:100%;
       /* Determine appearance of code editor */
       border-color:#272822;
-      background-color: #112;
+      background-color: #121212;
   }
 
   #text-field {

@@ -56,7 +56,7 @@ const initialize_editor = () => {
                 let outarr = new Array();
                 if (lineCountCache != lineCount) {
                     for (let x = 0; x < lineCount; x++) {
-                        outarr[x] = (x + 1) + '.';
+                        outarr[x] = (x + 1);
                     }
                     lineNumbering.value = outarr.join('\n');
                 }
@@ -67,10 +67,10 @@ const initialize_editor = () => {
             });
             line_counter()
         } catch (error) {
-            let logger = document.getElementById("error-logger");
+            // let logger = document.getElementById("error-logger");
             console.log(error);
-            logger.style.display = "block";
-            logger.innerHTML = error;
+            // logger.style.display = "block";
+            // logger.innerHTML = error;
             
         }
         
