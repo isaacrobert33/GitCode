@@ -6,6 +6,7 @@
 > _A Web IDE with Git features embedded_
 
 ![GitHub top language](https://img.shields.io/github/languages/top/isaacrobert33/GitCode?color=yellow&label=JavaScript)
+![GitHub top language](https://img.shields.io/github/languages/top/isaacrobert33/GitCode?color=yellow&label=Python)
 
 **GitCode** is an IDE targeted to run on the web platform built on **Python**, that gives developers a cloud base workspace and anytime access to works remotely.
 
