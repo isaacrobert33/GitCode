@@ -21,8 +21,8 @@ GitCode is currently live and in development at http://robertix.pythonanywhere.c
     * [NextJS 12](https://nextjs.org/): core javascript framework
 
 * CI/CD, Code Management
-    * [GitHub] (https://github.com/): Version control
-    * Deployed on [Pythonanywhere] (https://www.pythonanywhere.com/)
+    * [GitHub](https://github.com/): Version control
+    * Deployed on [Pythonanywhere](https://www.pythonanywhere.com/)
 
 ## 📂 Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
