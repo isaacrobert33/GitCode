@@ -33,3 +33,4 @@ activate
 app/__pycache__/
 *.py[co]
 
+deploy
