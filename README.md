@@ -1,5 +1,5 @@
 <p>
-    <img src="public/favicon.ico"/> <span style="font-size: 45px; font-weight: bold">GitCode</span>
+    <img src="public/favicon.ico"/> ## GitCode
 </p>
 
 > _A Web IDE with Git features embedded_
