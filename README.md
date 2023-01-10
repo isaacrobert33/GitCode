@@ -1,6 +1,7 @@
 <p>
-    <img src="public/favicon.ico"/> ## GitCode
+    <img src="public/favicon.ico"/>
 </p>
+# GitCode
 
 > _A Web IDE with Git features embedded_
 
@@ -18,11 +19,11 @@ GitCode is currently live and in development at http://robertix.pythonanywhere.c
 
 * UI/Frontend
     * [ReactJS](https://reactjs.org/): core javascript library
-    * [NextJS 12](https://nextjs.org/): core javascript framework
+    * [NextJS](https://nextjs.org/): core javascript framework
 
 * CI/CD, Code Management
     * [GitHub](https://github.com/): Version control
-    * Deployed on [Pythonanywhere](https://www.pythonanywhere.com/)
+    * Deployed on [PythonAnywhere](https://www.pythonanywhere.com/)
 
 ## 📂 Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
