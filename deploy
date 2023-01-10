@@ -1,8 +1,7 @@
 cp -r build ../
 cp app/main.py ../
 cp app/utils.py ../
-sudo git add .
-git checkout dev
+sudo git checkout dev
 cp -r ../build .
 cp -r ./build ./templates
 cp ../main.py .
