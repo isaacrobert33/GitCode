@@ -6,7 +6,6 @@ import './App.css';
 // import { useState } from 'react';
 import git_icon from './git-icon.svg';
 
-// var host = "http://172.20.10.5:5000"
 // var host = process.env.REACT_APP_HOST;
 var host = "";
 

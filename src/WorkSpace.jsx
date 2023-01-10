@@ -9,7 +9,6 @@ import Toast from './Toast';
 import gitfork from './gitfork.svg'
 import { TabList, TabPanels, TabPanel, Tabs, Tab } from '@chakra-ui/react';
 
-// var host = "http://172.20.10.5:5000"
 // var process.env.REACT_APP_HOST;
 var host = "";
 

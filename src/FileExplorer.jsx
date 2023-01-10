@@ -5,7 +5,6 @@ import file_icon from './file-icon.png';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
-// var host = "http://172.20.10.5:5000"
 // var host = process.env.REACT_APP_HOST;
 var host = "";
 
