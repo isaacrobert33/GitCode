@@ -34,3 +34,4 @@ app/__pycache__/
 *.py[co]
 
 deploy
+.zip
