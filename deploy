@@ -2,13 +2,12 @@ cp -r build ../
 cp app/main.py ../
 cp app/utils.py ../
 sudo git add .
-sudo git commit -m "fix:"
 git checkout dev
 cp -r ../build .
 cp -r ./build ./templates
 cp ../main.py .
 cp ../utils.py .
 sudo git add .
-sudo git commit -m "dev/fix:"
+sudo git commit -m "dev/fix: UI redesing and new features"
 source venv/bin/activate
 python3 app.py
