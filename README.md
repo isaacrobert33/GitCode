@@ -1,4 +1,4 @@
-<p style="font-size: 19px; font-weight: bold">
+<p style="font-size: 45px; font-weight: bold">
     <img src="public/favicon.ico"/> GitCode
 </p>
 
