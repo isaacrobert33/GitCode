@@ -373,6 +373,7 @@ function WorkSpace() {
                     editorNode.value = originalContent;
                 }
                 hideDropdown(dropdown);
+                document.getElementById("overlay").style.display = "none";
             }
         } else if (id === "redo") {
             return (e) => {
@@ -383,10 +384,12 @@ function WorkSpace() {
                     editorStack.push(redoContent);
                 }
                 hideDropdown(dropdown);
+                document.getElementById("overlay").style.display = "none";
             }
         } else if (id === "find") {
             return (e) => {
                 hideDropdown(dropdown);
+                document.getElementById("overlay").style.display = "none";
                 document.getElementById("find-wdg").style.display = "block";
             }
         }
@@ -394,17 +397,18 @@ function WorkSpace() {
     }
     var timeoutId;
     
-    var callback;
+    var callback = false;
     const findInputObs = () => {
         let observer = new MutationObserver(function(mutations, obs) {
             const findInput = document.getElementById("find-input");
             mutations.forEach(function(mutationRecord) {
                 if (findInput) {
                     findInput.addEventListener("keypress", (event) => {
-                        if (event.key === "Enter" && !callBack) {
+                        if (event.key === "Enter" && !callback) {
                             event.preventDefault();
                             callback = true;
                             searchKeyword(event);
+                            setTimeout(() => {callback=false;}, 500)
                         }
                     })
                     obs.disconnect();
@@ -419,6 +423,7 @@ function WorkSpace() {
 
     var prevIndex, matchPos=0;
     const searchKeyword = (inputNode)  => {
+        console.log(activeTab);
         const editorNode = document.getElementById(`editor-${activeTab}`);
         const findInput = document.getElementById("find-input");
         editorNode.textContent = editorNode.value;
@@ -428,35 +433,43 @@ function WorkSpace() {
         if (prevIndex) {
             searched = editorNode.value.slice(0, prevIndex);
             newIndex = editorNode.value.slice(prevIndex).indexOf(keyword);
-            index = newIndex+searched.length;
+            if (newIndex !== -1) {
+                index = newIndex+searched.length;
+            } else {
+                index = newIndex;
+            }
+            
         } else {
             index = editorNode.value.indexOf(keyword);
         }
-        
+        console.log(index);
+        let match = editorNode.value.split(keyword).length - 1;
+        let eng;
+        if (match < 2) {
+            eng = "match";
+        } else {
+            eng = "matches"
+        }
+
         if (index !== -1) {
-            // const range = document.createRange();
-            // range.setStart(editorNode.firstChild, index);
-            // range.setEnd(editorNode.firstChild, keyword.length);
-            // const selection = window.getSelection();
-            // selection.removeAllRanges();
-            // selection.addRange(range);
-            editorNode.setSelectionRange(index, index + keyword.length);
-            // document.execCommand("backColor", false, "yellow");
+            if (editorNode.createTextRange) {
+                let range = editorNode.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', index);
+                range.moveStart('character', index + keyword.length);
+                range.select();
+            } else if (editorNode.setSelectionRange) {
+                editorNode.setSelectionRange(index, index + keyword.length);
+            }
+            
             prevIndex = index+keyword.length;
             matchPos += 1;
-            let match = editorNode.value.split(keyword).length - 1;
-            let eng;
-            if (match < 2) {
-                eng = "match";
-            } else {
-                eng = "matches"
-            }
-            document.getElementById("matches").innerHTML = `${matchPos}/${match} ${eng}`
+            document.getElementById("matches").innerHTML = `${matchPos} of ${match} ${eng}`
     
         } else {
-            prevIndex = 0;
-            matchPos = 0;
-            document.getElementById("matches").innerHTML = "No match!";
+            prevIndex = 1;
+            matchPos = 1;
+            document.getElementById("matches").innerHTML = `${matchPos} of ${match} ${eng}`;
         }
         
     }
