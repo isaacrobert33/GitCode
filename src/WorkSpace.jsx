@@ -180,8 +180,7 @@ function WorkSpace() {
         const updatedTabsData = openTabsData;
         updatedTabsData.splice(tab_id, tab_id+1);
         open_tabs.splice(tab_id, tab_id+1);
-        // document.getElementById(`tabs-:r1:--tab-${tab_id}`).style.display = "none";
-        // document.getElementById(`tabs-:r1:--tabpanel-${tab_id}`).style.display = "none";
+        
         if (open_tabs.length>0) {
             document.getElementById(`tabs-:r0:--tab-${openTabs.length-1}`).click();
         }
