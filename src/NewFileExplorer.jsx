@@ -106,22 +106,18 @@ const NewFileExplorer = ({setEditorContent}) => {
         try {
             hide_file_drop_down()
             let images = ["png", "jpg", "jpeg", "svg", "ico"];
+            let path = currentPath;
             for (let ext=0; ext<images.length; ext++) {
                 if (path.toLowerCase().includes(images[ext])) {
                     downloadFile(true);
                     return;
                 }
             }
-            let path = currentPath;
+            
             let response = await fetch(`${host}/file_data?file_path=${path}`);
             let json_data = await response.json();
             setEditorContent(json_data.data.content, true, json_data.data.filename, path, json_data.data.repo_name, json_data.data.branch_name, json_data.data.repo_dir);
-            line_counter();
         } catch (error) {
-            let logger = document.getElementById("error-logger");
-            logger.innerHTML = error;
-            logger.style.display = "block";
-            
             console.log(error);
         }
     }
@@ -150,10 +146,8 @@ const NewFileExplorer = ({setEditorContent}) => {
     }
 
     function show_file_drop_down(path) {
-        console.log("hello");
         setActiveFile(path);
         document.getElementById("new-file-drop-down").style.display = "block";
-        console.log("hello");
         // let overlay = document.createElement("div");
         // overlay.id = "overlay";
         // overlay.style = "z-index: 6";
@@ -198,6 +192,7 @@ const NewFileExplorer = ({setEditorContent}) => {
     }
     const closeExplorer = () => {
         document.getElementById("new-file-explorer").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
         getDirData("", "dir");
     }
     const saveFile = async() => {
@@ -238,21 +233,6 @@ const NewFileExplorer = ({setEditorContent}) => {
         let json_data = await response.json();
         getDirData(currentDir, "dir");
         popToast(json_data.msg);
-    }
-
-    var lineCountCache = 0;
-    function line_counter() {
-        let editorNode = document.getElementById("editor");
-        let lineNumbering = document.getElementById("lineCounter");
-        let lineCount = editorNode.value.split('\n').length;
-        let outarr = [];
-        if (lineCountCache !== lineCount) {
-            for (let x = 0; x < lineCount; x++) {
-                outarr[x] = (x + 1) + '.';
-            }
-            lineNumbering.value = outarr.join('\n');
-        }
-        lineCountCache = lineCount;
     }
 
     const startObserver = () => {

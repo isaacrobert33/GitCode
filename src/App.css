@@ -16,8 +16,13 @@ body {
   text-align: center;
 }
 
+.footer {
+  bottom: 0;
+  background-color: #333344;
+}
+
 .control-panel {
-  background: #333344;
+  background-color: #333344;
   /* padding: 3px; */
   font-family: sans-serif;
   font-size: 13px;
@@ -48,9 +53,8 @@ body {
 
 #branch {
   display: inline-block;
-  padding: 5px;
-  background-color: #55aabb;
-  margin-top: 0;
+  padding: 3px;
+  background-color: #333344;
   color: azure;
   font-size: 12px;
 }
@@ -270,6 +274,9 @@ label {
   margin-right: 10px;
   cursor: pointer;
 }
+#editor-container, .editor {
+  height: 100%;
+}
 
 .toast {
   min-width: 200px;
@@ -401,16 +408,14 @@ label {
   background-color: grey;
 }
 
-#lineCounter {
-  display: none;
-}
-
 .find {
+  background-color: #333344;
   box-shadow: 1px 2px 3px 3px black;
   position: absolute;
-  top: 7%;
+  top: 12%;
   right: 4%;
   z-index: 15px;
+  padding: 0;
   display: none;
 }
 
@@ -428,7 +433,6 @@ label {
   list-style-type: none;
   display: inline-block;
   border-right: 1px solid #121212;
-  border-bottom: 2px solid #ed7d3a;
   padding-right: 5px;
   padding-left: 16px;
   padding-bottom: 5px;
@@ -436,13 +440,18 @@ label {
   font-weight: bold;
 }
 
-#tab-annul {
-  padding: 2px;
-  color: #ed7d3a;
-  font-size: 15px;
+.activeTab {
+  border-bottom: 2px solid #ed7d3a;
+}
+
+.tab-annul {
+  color: #333344;
+  font-size: 22px;
+  font-weight: bold;
   display: inline-block;
   margin-left: 8px;
 }
+
 
 @media only screen and (max-width: 600px) {
   .language-opt {
@@ -457,7 +466,7 @@ label {
       margin-top: 9%;
   }
   .toast {
-      margin-left: 25%;
+      margin-left: 15%;
       min-width: 140px;
       min-height: 20px;
   }
@@ -491,8 +500,8 @@ label {
       background-color: #ccc;
   }
 
-  .editor, #lineCounter {
-      /* overflow: auto; */
+  .editor, .lineCounter {
+      overflow: auto;
       resize: none;
       color: azure;
       outline: none;
@@ -500,15 +509,16 @@ label {
       box-sizing: border-box;
       -moz-box-sizing: border-box;
       border-radius: 0;
-      height: 70vh;
+      height: 88vh;
+      /* display: none; */
   }
 
-  #lineCounter:focus-visible,
+  .lineCounter:focus-visible,
   .editor:focus-visible {
       outline:none;
   }
 
-  #lineCounter {
+  .lineCounter {
       display: flex;
       border-color: transparent;
       overflow-y: hidden;
@@ -529,13 +539,20 @@ label {
       width:100%;
       /* Determine appearance of code editor */
       border-color:#272822;
-      background-color: #121212;
+      background-color: #232323;
+      color: green;
   }
 
   #text-field {
       position: fixed;
       top: 90%;
       
+  }
+
+  .footer {
+    height: 4vh;
+    bottom: 0;
+    position: fixed;
   }
 
 }

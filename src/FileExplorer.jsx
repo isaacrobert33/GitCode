@@ -122,12 +122,8 @@ const FileExplorer = ({setEditorContent}) => {
             let response = await fetch(`${host}/file_data?file_path=${path}`);
             let json_data = await response.json();
             setEditorContent(json_data.data.content, true, json_data.data.filename, path, json_data.data.repo_name, json_data.data.branch_name, json_data.data.repo_dir);
-            line_counter();
-        } catch (error) {
-            let logger = document.getElementById("error-logger");
-            logger.innerHTML = error;
-            logger.style.display = "block";
             
+        } catch (error) {
             console.log(error);
         }
         
@@ -192,22 +188,8 @@ const FileExplorer = ({setEditorContent}) => {
     }
     const closeExplorer = () => {
         document.getElementById("file-explorer").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
         getDirData("", "dir");
-    }
-
-    var lineCountCache = 0;
-    function line_counter() {
-        let editorNode = document.getElementById("editor");
-        let lineNumbering = document.getElementById("lineCounter");
-        let lineCount = editorNode.value.split('\n').length;
-        let outarr = [];
-        if (lineCountCache !== lineCount) {
-            for (let x = 0; x < lineCount; x++) {
-                outarr[x] = (x + 1) + '.';
-            }
-            lineNumbering.value = outarr.join('\n');
-        }
-        lineCountCache = lineCount;
     }
 
     const startObserver = () => {

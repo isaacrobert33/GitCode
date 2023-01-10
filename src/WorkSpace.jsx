@@ -7,6 +7,7 @@ import NewFileExplorer from './NewFileExplorer';
 import GitBoard from './GitBoard';
 import Toast from './Toast';
 import gitfork from './gitfork.svg'
+import { TabList, TabPanels, TabPanel, Tabs, Tab } from '@chakra-ui/react';
 
 var host = "http://172.20.10.5:5000"
 // var process.env.REACT_APP_HOST;
@@ -25,14 +26,14 @@ const DropDown = ({ id, list, callback }) => {
     )
 }
 
-const Tab = ({title}) => {
-    return (
-        <li className='tab-box'>
-            {title}
-            <span id='tab-annul' title='close tab'>&times;</span>
-        </li>
-    )
-}
+// const Tab = ({ id, title, onPress, onClose }) => {
+//     return (
+//         <li id={id} onClick={onPress} className='tab-box'>
+//             {title}
+//             <span id='tab-annul' title='close tab' onClick={onClose}>&times;</span>
+//         </li>
+//     )
+// }
 
 const PostInit = (json) => {
     return {
@@ -77,6 +78,43 @@ function popToast() {
     
 }
 
+function setupEditor(editor_id) {
+    console.log(editor_id);
+    let lineNumbering = document.getElementById(`lineCounter-${editor_id}`);
+    let editorNode = document.getElementById(editor_id);
+    
+    // Synchronize scrollling
+    editorNode.addEventListener('scroll', () => {
+        try {
+            lineNumbering.scrollTop = editorNode.scrollTop;
+            lineNumbering.scrollLeft = editorNode.scrollLeft;
+        } catch (error) {
+            console.log(error);
+        }
+        
+    });
+
+    // Counting function
+    let lineCountCache = 0;
+    function line_counter() {
+        let lineCount = editorNode.value.split('\n').length;
+        let outarr = new Array();
+        if (lineCountCache !== lineCount) {
+            for (let x = 0; x < lineCount; x++) {
+                outarr[x] = (x + 1);
+            }
+            lineNumbering.value = outarr.join('\n');
+        }
+        lineCountCache = lineCount;
+    }
+    editorNode.addEventListener('input', () => {
+        line_counter();
+    });
+    line_counter()
+}
+
+var openTabsData = [];
+
 function WorkSpace() {
     const [toolbarData, setToolbarData] = useState({file: [], git: [], help: [], edit_tab: []});
     // const [currentDir, setCurrentDir] = useState("./repositories");
@@ -85,15 +123,14 @@ function WorkSpace() {
     const [gitOperation, setGitOperation] = useState("");
     const [currentRepo, setCurrentRepo] = useState("Repo");
     const [branchName, setBranchName] = useState("<branch>");
-    // const [repoDir, setRepoDir] = useState("");
-    const [fileName, setFileName] = useState("Unknown");
+    const [fileName, setFileName] = useState("");
     const [filePath, setFilePath] = useState("");
-    const [currentTabs, setTabs] = useState([fileName]);
+    const [openTabs, setTabs] = useState([]);
+    const [activeTab, setCurrentTab] = useState(0);
     
     const getToolbarData = async () => {
         const response = await fetch(`${host}/toolbar_opt`);
         const data = await response.json();
-        console.log(data.data);
         setToolbarData(data.data);
     }
     // const getExplorerData = async () => {
@@ -104,7 +141,7 @@ function WorkSpace() {
 
     const hideDropdown = (id, overlaynode=null) => {
         document.getElementById(id).style.display = "none";
-        console.log(overlaynode);
+       
         if (overlaynode != null) {
             document.body.removeChild(overlaynode);
         } else {
@@ -115,7 +152,7 @@ function WorkSpace() {
     function showDropdown(id) {
         document.getElementById(id).style.display = "block";
         // document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue("# Author: Isaac Robert \n# GitCode v0.1\nimport numpy as np\nimport pandas as pd\n");
-        console.log(document.getElementById("editor"));
+        
         let overlay = document.createElement("div");
         overlay.id = "overlay";
         document.body.appendChild(overlay)
@@ -125,30 +162,100 @@ function WorkSpace() {
         setDropdown(id);
     }
 
-    const openNewTab = (file_name) => {
-        let updatedTabs = [...currentTabs, file_name];
-        console.log(updatedTabs);
+    const openNewTab = (content, fromFileExp=false, file_name, file_path, repo_name, branch_name="", repo_dir="") => {
+        const newTabId = openTabs.length;
+        console.log("newID", newTabId, openTabs.length);
+        const newTabData = {id: newTabId, content: content, fromFileExp: fromFileExp, file_name: file_name, file_path: file_path, repo_name: repo_name, branch_name: branch_name, repo_dir: repo_dir};
+        const updatedTabs = [...openTabs, {id: newTabId, filename: file_name}];
+        const updatedTabsData = [...openTabsData, newTabData];
+        console.log(updatedTabs, updatedTabsData);
         setTabs(updatedTabs);
+        openTabsData = updatedTabsData;
+        setEditorContent(newTabData);
     }
 
-    function setEditorContent(content, fromFileExp=false, file_name, file_path, repo_name, branch_name="", repo_dir="") {
-        openNewTab(file_name);
-        console.log(currentTabs);
-        try {
-            document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue(content);
-            console.log(content);
-        } catch (error) {
-            document.getElementById("editor").value = content;
+    const closeTab = (tab_id) => {
+        tab_id = Number(tab_id);
+        const open_tabs = openTabs;
+        const updatedTabsData = openTabsData;
+        updatedTabsData.splice(tab_id, tab_id+1);
+        open_tabs.splice(tab_id, tab_id+1);
+        // document.getElementById(`tabs-:r1:--tab-${tab_id}`).style.display = "none";
+        // document.getElementById(`tabs-:r1:--tabpanel-${tab_id}`).style.display = "none";
+        if (open_tabs.length>0) {
+            document.getElementById(`tabs-:r1:--tab-${openTabs.length-1}`).click();
         }
-        originalContent = content;
-        if (fromFileExp === true) {
-            document.getElementById("file-explorer").style.display = "none";
-            document.getElementById("new-file-explorer").style.display = "none";
+        
+        setTabs(open_tabs);
+        openTabsData =  updatedTabsData;
+    }
+
+    function updateInfo(tab_id) {
+        setCurrentTab(tab_id);
+        let data = openTabsData[tab_id];
+        console.log(openTabsData, tab_id);
+        setCurrentRepo(data.repo_name);
+        setBranchName(data.branch_name);
+        setFileName(data.file_name);
+        setFilePath(data.file_path);
+        setupEditor(`editor-${tab_id}`);
+    }
+
+    const startCacheTimer = () => {
+        const editorNode = document.getElementById("editor");
+        timeoutId = setTimeout((e) => {
+            let cont = editorNode.value;
+            editorStack.push(cont);
+           
+        }, 5000)
+    }
+
+    function setEditorContent(params) {
+        const editor_id = `editor-${params.id}`;
+        const content = params.content; 
+        const fromFileExp = params.fromFileExp; 
+        const file_name = params.file_name; 
+        const file_path = params.file_path; 
+        const repo_name = params.repo_dir; 
+        const branch_name = params.branch_name; 
+        const repo_dir = params.repo_dir;
+        
+        const editorNodeObserver = () => {
+            let observer = new MutationObserver(function(mutations, obs) {
+                const editorNode = document.getElementById(editor_id);
+                mutations.forEach(function(mutationRecord) {
+                    console.log(editor_id);
+                    if (editorNode) {
+                        console.log("added editor");
+                        try {
+                            document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue(content);
+                        } catch (error) {
+                            editorNode.value = content;
+                        }
+                        originalContent = content;
+                        if (fromFileExp === true) {
+                            document.getElementById("file-explorer").style.display = "none";
+                            document.getElementById("new-file-explorer").style.display = "none";
+                        }
+                        editorNode.addEventListener('input', (e) => {
+                            clearTimeout(timeoutId);
+                            startCacheTimer()
+                        });
+                        setCurrentRepo(repo_name);
+                        setBranchName(branch_name);
+                        setFileName(file_name);
+                        setFilePath(file_path);
+                        setupEditor(editor_id);
+                        obs.disconnect();
+                        return ;
+                    }
+                        
+                })
+            })
+            
+            observer.observe(document, {childList: true, subtree: true});
         }
-        setCurrentRepo(repo_name);
-        setBranchName(branch_name);
-        setFileName(file_name);
-        setFilePath(file_path);
+        editorNodeObserver();
     }
 
     async function saveFile() {
@@ -160,7 +267,7 @@ function WorkSpace() {
             try {
                 editor_content = document.getElementsByClassName("CodeMirror")[0].CodeMirror.getValue();
             } catch (error) {
-                editor_content = document.getElementById("editor").value;
+                editor_content = document.getElementById(`editor-${activeTab}`).value;
             }
             
             let payload = {content: editor_content};
@@ -254,7 +361,7 @@ function WorkSpace() {
             return (e) => {
                 let prevContent = editorStack.pop();
                 const editorNode = document.getElementById("editor");
-                console.log(prevContent);
+                
                 if (prevContent){
                     editorNode.value = prevContent;
                     if (editorNode.value === prevContent && editorStack.slice(-1)[0]) {
@@ -286,32 +393,7 @@ function WorkSpace() {
 
     }
     var timeoutId;
-    const startCacheTimer = () => {
-        const editorNode = document.getElementById("editor");
-        timeoutId = setTimeout((e) => {
-            let cont = editorNode.value;
-            editorStack.push(cont);
-            console.log("Drafted");
-        }, 5000)
-    }
-    const editorNodeObs = () => {
-        let observer = new MutationObserver(function(mutations, obs) {
-            const editorNode = document.getElementById("editor");
-            mutations.forEach(function(mutationRecord) {
-                if (editorNode) {
-                    editorNode.addEventListener('input', (e) => {
-                        clearTimeout(timeoutId);
-                        startCacheTimer()
-                    });
-                    obs.disconnect();
-                    return ;
-                }
-                    
-            })
-        })
-        
-        observer.observe(document, {childList: true, subtree: true});
-    }
+    
     var callback;
     const findInputObs = () => {
         let observer = new MutationObserver(function(mutations, obs) {
@@ -321,9 +403,8 @@ function WorkSpace() {
                     findInput.addEventListener("keypress", (event) => {
                         if (event.key === "Enter" && !callBack) {
                             event.preventDefault();
-                            console.log("Press")
-                            callBack = true;
-                            // searchKeyword(event);
+                            callback = true;
+                            searchKeyword(event);
                         }
                     })
                     obs.disconnect();
@@ -333,13 +414,12 @@ function WorkSpace() {
             })
         })
         
-        observer.observe(document, {childList: true, subtree: true});
+        observer.observe(document.getElementById("main"), {childList: true, subtree: true});
     }
-
 
     var prevIndex, matchPos=0;
     const searchKeyword = (inputNode)  => {
-        const editorNode = document.getElementById("editor");
+        const editorNode = document.getElementById(`editor-${activeTab}`);
         const findInput = document.getElementById("find-input");
         editorNode.textContent = editorNode.value;
         let index, searched, newIndex;
@@ -352,7 +432,7 @@ function WorkSpace() {
         } else {
             index = editorNode.value.indexOf(keyword);
         }
-        console.log("Index:", index, "prevIndex", prevIndex);
+        
         if (index !== -1) {
             // const range = document.createRange();
             // range.setStart(editorNode.firstChild, index);
@@ -383,14 +463,13 @@ function WorkSpace() {
 
     useEffect(() => {
         getToolbarData();
-        editorNodeObs();
         findInputObs();
     }, [])
     
     return (
         <div className="work-space">
-            <FileExplorer setEditorContent={setEditorContent}/>
-            <NewFileExplorer setEditorContent={setEditorContent}/>
+            <FileExplorer setEditorContent={openNewTab}/>
+            <NewFileExplorer setEditorContent={openNewTab}/>
             <GitBoard operation={gitOperation} currentRepo={currentRepo} branch={setBranchName}/>
             <Toast msg={"Cloned successfully"}/>
             <div id='main'>
@@ -420,52 +499,63 @@ function WorkSpace() {
                             <option value="node"> Node JS </option> 
                         </select>
                     </div> */}
-                    <hr></hr>
-                    <div className='tabs'>
-                        {
-                            currentTabs?.length > 0 ? (
-                                <ul>
-                                    {
-                                        currentTabs.map(
-                                            (tab_title) => (
-                                                <Tab title={tab_title}/>
-                                            )
+                    
+                    <Tabs variant='enclosed' onChange={(index) => ( updateInfo(index) )}>
+                        <TabList css={{overflowX: "auto"}}>
+                            {
+                                openTabs?.length>0 ? (
+                                    openTabs.map(
+                                        (tab) => (
+                                            <Tab _selected={{ color: 'azure', bg: 'cyan.500' }} id={tab.id}>{tab.filename} <span onClick={(e) => (closeTab(tab.id))} className='tab-annul'>&times;</span></Tab>
                                         )
-                                    }
-                                </ul>
-                            ) : (
-                                <>{currentTabs}</>
-                            )
-                        }
-                        
-                        {/* <Tab title={fileName}/> */}
-                        
-                    </div>
+                                    )
+                                ) : (
+                                    <></>
+                                )
+                                
+                            }
+                        </TabList>
+                        <TabPanels>
+                            {
+                                openTabs?.length>0 ? (
+                                    openTabs.map(
+                                        (tab_data) => (
+                                            <TabPanel>
+                                                <textarea className='lineCounter' id={`lineCounter-editor-${tab_data.id}`} wrap='off' readOnly>1</textarea>
+                                                <textarea className='editor' id={`editor-${tab_data.id}`} wrap='off'></textarea>
+                                            </TabPanel>
+                                        )
+                                    )
+                                ) : (
+                                    <></>
+                                )
+                            }
+                        </TabPanels>
+                    </Tabs>
                     
                 </div>
-                <p id='editor-container'>
-                    <textarea id="lineCounter" wrap='off' readOnly>1</textarea>
-                    <textarea className='editor' id="editor" wrap='off'></textarea>
-                    <div id={"find-wdg"} className='find'>
-                        <input style={{borderRadius: "5px"}} id='find-input' type={"text"} placeholder={"Find"}/>
-                        <span style={{cursor: "pointer", color:  "cyan", fontSize: "20px", fontWeight: "bold", }} onClick={(e) => {document.getElementById("find-wdg").style.display = "none"}}>&times;</span>
-                        <h5 style={{color: "cyan"}} id='matches'></h5>
-                    </div>
-                   
-                </p>
                 
-                <span id='branch' title='active branch'>
-                    <img src={gitfork} alt={"git"} 
-                        style={{width:"15px", height:"15px", display:"inline-block", paddingRight:"5px"}}
-                    />
-                    {branchName}
-                </span>
-                <div className="button-container">
-                    <div className="run" onClick={window.executeCode}></div>
+                <div id={"find-wdg"} className='find'>
+                    <input style={{borderRadius: "5px", marginLeft: "6px"}} id='find-input' type={"text"} placeholder={"Find"}/>
+                    <span style={{color: "cyan", fontSize: "12px", marginLeft: "6px"}} id='matches'>0 of 0</span>
+                    <span style={{cursor: "pointer", color:  "cyan", fontSize: "20px", fontWeight: "bold", marginLeft: "6px"}} onClick={(e) => {document.getElementById("find-wdg").style.display = "none"}}>&times;</span>
                 </div>
+                <div className='footer'>
+                    <span id='branch' title='active branch'>
+                        <img src={gitfork} alt={"git"} 
+                            style={{width:"15px", height:"15px", display:"inline-block", paddingRight:"5px"}}
+                        />
+                        {branchName}
+                    </span>
+                </div>
+                
+                {/* <div className="button-container">
+                    <div className="run" onClick={window.executeCode}></div>
+                </div> */}
 
-                <div className="terminal">~robert$</div>
+                {/* <div className="terminal">~robert$</div> */}
             </div>
+            
         </div>
   );
 }
