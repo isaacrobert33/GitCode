@@ -1,7 +1,7 @@
+## GitCode
 <p>
     <img src="public/favicon.ico"/>
 </p>
-## GitCode
 
 > _A Web IDE with Git features embedded_
 
