@@ -9,9 +9,9 @@ import Toast from './Toast';
 import gitfork from './gitfork.svg'
 import { TabList, TabPanels, TabPanel, Tabs, Tab } from '@chakra-ui/react';
 
-var host = "http://172.20.10.5:5000"
+// var host = "http://172.20.10.5:5000"
 // var process.env.REACT_APP_HOST;
-// var host = "";
+var host = "";
 
 const DropDown = ({ id, list, callback }) => {
     return (
@@ -183,7 +183,7 @@ function WorkSpace() {
         // document.getElementById(`tabs-:r1:--tab-${tab_id}`).style.display = "none";
         // document.getElementById(`tabs-:r1:--tabpanel-${tab_id}`).style.display = "none";
         if (open_tabs.length>0) {
-            document.getElementById(`tabs-:r1:--tab-${openTabs.length-1}`).click();
+            document.getElementById(`tabs-:r0:--tab-${openTabs.length-1}`).click();
         }
         
         setTabs(open_tabs);
