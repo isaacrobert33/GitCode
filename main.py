@@ -232,5 +232,5 @@ api.add_resource(UploadFile, '/upload_file')
 api.add_resource(Status, "/status")
 
 if __name__=="__main__":
-    app.run(debug=True, host='172.20.10.5')
+    app.run(debug=True, host='172.20.10.5', port=8080)
     
