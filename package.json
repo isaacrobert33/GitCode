@@ -13,6 +13,7 @@
     "framer-motion": "^8.2.4",
     "immer": "^9.0.17",
     "react": "^18.2.0",
+    "react-codemirror": "^1.0.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "use-immer": "^0.8.1",

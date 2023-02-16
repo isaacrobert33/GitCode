@@ -3,6 +3,7 @@ import React from "react";
 import WorkSpace from './WorkSpace';
 import { ChakraProvider } from '@chakra-ui/react';
 
+require('codemirror/mode/python/python')
 // import { tabsAnatomy } from '@chakra-ui/anatomy'
 // import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 
@@ -20,7 +21,12 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 
 function App() {
-  console.log(process.env)
+  function AddLibrary(urlOfTheLibrary) {
+    const script = document.createElement('script');
+    script.src = urlOfTheLibrary;
+    script.async = true;
+    document.body.appendChild(script);
+  }
   return (
     <ChakraProvider resetCSS={false}>
       <div className='App'>

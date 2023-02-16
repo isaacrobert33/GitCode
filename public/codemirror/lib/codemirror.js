@@ -7902,7 +7902,7 @@
   // A CodeMirror instance represents an editor. This is the object
   // that user code is usually dealing with.
 
-  function CodeMirror(place, options) {
+function CodeMirror(place, options) {
     var this$1 = this;
 
     if (!(this instanceof CodeMirror)) { return new CodeMirror(place, options) }

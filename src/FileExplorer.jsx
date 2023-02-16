@@ -6,9 +6,12 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 
 // var host = process.env.REACT_APP_HOST;
-var host = "";
+var host = "http://127.0.0.1:5000";
+if (!window.location.href.includes("local")) {
+    host = "";
+}
 
-const File = ({name, file_path, type, on_click}) => {
+const File = ({id, name, file_path, type, on_click}) => {
     let icon;
     if (type === "dir") {
         icon = folder_icon;
@@ -22,7 +25,7 @@ const File = ({name, file_path, type, on_click}) => {
         }
     }
     return (
-        <div className='file' title={name} onClick={
+        <div id={id} className='file' title={name} onClick={
             on_click
         }>
             <img id='file-icon' alt={name} src={icon} width='40px' height={'40px'}/>
@@ -224,7 +227,7 @@ const FileExplorer = ({setEditorContent}) => {
                             {
                                 currentDirData.map(
                                     (file) => (
-                                        <File file_path={currentDir+"/"+file.name} name={file.name} type={file.type} on_click={
+                                        <File key={`file-${currentDirData.indexOf(file)}`} id={`file-${currentDirData.indexOf(file)}`} file_path={currentDir+"/"+file.name} name={file.name} type={file.type} on_click={
                                             (e) => (
                                                 getDirData(currentDir+"/"+file.name, file.type)
                                             )

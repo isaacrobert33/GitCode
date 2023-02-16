@@ -1,6 +1,7 @@
 var editor, editorNode, editorSet;
 
 const startObserver = () => {
+    console.log("Started Observer...");
     var observer = new MutationObserver(function(mutations, obs) {
         const editorNode = document.getElementById("editor");
         mutations.forEach(function(mutationRecord) {
@@ -19,7 +20,9 @@ const initialize_editor = () => {
     console.log("initialized...")
     editorSet = true;
     const editorNode = document.getElementById("editor");
+    document.getElementById("lineCounter").style.display = "none";
     if (window.screen.width > 600) {
+        console.log("Codemirror...")
         document.getElementById("lineCounter").style.display = "none";
         editor = CodeMirror.fromTextArea(
             editorNode,
@@ -45,19 +48,3 @@ const initialize_editor = () => {
 window.onload = function() {
     startObserver()
 }
-
-
-
-// function changeLanguage () {
-//     let language = document.getElementById("languages").value;
-//     console.log(language);
-//     if(language == 'c' || language == 'cpp')editor.setOption("mode", "c_cpp");
-//     else if(language == 'javascript')editor.setOption("mode", "php");
-//     else if(language == 'python')editor.setOption("mode", "python");
-//     else if(language == 'node')editor.setOption("mode", "javascript");
-// }
-
-
-// function executeCode() {
-//     console.log("Executing!");
-// }

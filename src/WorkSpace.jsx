@@ -9,30 +9,27 @@ import Toast from './Toast';
 import gitfork from './gitfork.svg'
 import { TabList, TabPanels, TabPanel, Tabs, Tab } from '@chakra-ui/react';
 
+var CodeMirror = require('react-codemirror');
+
 // var process.env.REACT_APP_HOST;
-var host = "";
+var host = "http://127.0.0.1:5000";
+if (!window.location.href.includes("local")) {
+    host = "";
+}
 
 const DropDown = ({ id, list, callback }) => {
     return (
         <div id={id} className='dropdown'>
             {
-                list.map((item) => (
-                    <a href={"#"+item.id} onClick={callback(item.id)} className='dropdown-item' title={item.info}>{item.name}</a>
+                list.map(
+                    (item) => (
+                    <a key={list.indexOf(item)} href={"#"+item.id} onClick={callback(item.id)} className='dropdown-item' title={item.info}>{item.name}</a>
                     
                 ))
             }
         </div>
     )
 }
-
-// const Tab = ({ id, title, onPress, onClose }) => {
-//     return (
-//         <li id={id} onClick={onPress} className='tab-box'>
-//             {title}
-//             <span id='tab-annul' title='close tab' onClick={onClose}>&times;</span>
-//         </li>
-//     )
-// }
 
 const PostInit = (json) => {
     return {
@@ -126,6 +123,7 @@ function WorkSpace() {
     const [filePath, setFilePath] = useState("");
     const [openTabs, setTabs] = useState([]);
     const [activeTab, setCurrentTab] = useState(0);
+    const [codes, setCodes] = useState([]);
     
     const getToolbarData = async () => {
         const response = await fetch(`${host}/toolbar_opt`);
@@ -196,7 +194,9 @@ function WorkSpace() {
         setBranchName(data.branch_name);
         setFileName(data.file_name);
         setFilePath(data.file_path);
-        setupEditor(`editor-${tab_id}`);
+        if (window.screen.width < 601) {
+            setupEditor(`editor-${tab_id}`);
+        }
     }
 
     const startCacheTimer = () => {
@@ -217,35 +217,37 @@ function WorkSpace() {
         const repo_name = params.repo_dir; 
         const branch_name = params.branch_name; 
         const repo_dir = params.repo_dir;
+
+        let nCodes = [...codes, content];
+        console.log(nCodes);
+        setCodes(nCodes);
+
+        if (fromFileExp === true) {
+            document.getElementById("file-explorer").style.display = "none";
+            document.getElementById("new-file-explorer").style.display = "none";
+        }
+
+        setCurrentRepo(repo_name);
+        setBranchName(branch_name);
+        setFileName(file_name);
+        setFilePath(file_path);
         
         const editorNodeObserver = () => {
             let observer = new MutationObserver(function(mutations, obs) {
                 const editorNode = document.getElementById(editor_id);
                 mutations.forEach(function(mutationRecord) {
-                    console.log(editor_id);
                     if (editorNode) {
-                        console.log("added editor");
-                        try {
-                            document.getElementsByClassName("CodeMirror")[0].CodeMirror.setValue(content);
-                        } catch (error) {
-                            editorNode.value = content;
-                        }
+                        editorNode.value = content;
                         originalContent = content;
-                        if (fromFileExp === true) {
-                            document.getElementById("file-explorer").style.display = "none";
-                            document.getElementById("new-file-explorer").style.display = "none";
-                        }
+                        
                         editorNode.addEventListener('input', (e) => {
                             clearTimeout(timeoutId);
                             startCacheTimer()
                         });
-                        setCurrentRepo(repo_name);
-                        setBranchName(branch_name);
-                        setFileName(file_name);
-                        setFilePath(file_path);
                         setupEditor(editor_id);
                         obs.disconnect();
                         return ;
+                    
                     }
                         
                 })
@@ -253,7 +255,10 @@ function WorkSpace() {
             
             observer.observe(document, {childList: true, subtree: true});
         }
-        editorNodeObserver();
+        if (window.screen.width < 601) {
+            editorNodeObserver();
+        }
+        
     }
 
     async function saveFile() {
@@ -262,9 +267,9 @@ function WorkSpace() {
             popToast();
         } else {
             let editor_content;
-            try {
-                editor_content = document.getElementsByClassName("CodeMirror")[0].CodeMirror.getValue();
-            } catch (error) {
+            if (window.screen.width > 600) {
+                editor_content = codes[activeTab];
+            } else {
                 editor_content = document.getElementById(`editor-${activeTab}`).value;
             }
             
@@ -472,6 +477,19 @@ function WorkSpace() {
         
     }
 
+    const updateCode = (i, code) => {
+        codes[i] = code;
+        console.log(codes);
+        setCodes(codes);
+    }
+
+    var editorOptions = {
+        lineNumbers: true,
+        readOnly: false,
+        mode: "python",
+        autoCloseBrackets: true
+    }
+
     useEffect(() => {
         getToolbarData();
         findInputObs();
@@ -517,7 +535,7 @@ function WorkSpace() {
                                 openTabs?.length>0 ? (
                                     openTabs.map(
                                         (tab) => (
-                                            <Tab _selected={{ color: 'azure', bg: 'cyan.500' }} id={tab.id}>{tab.filename} <span onClick={(e) => (closeTab(tab.id))} className='tab-annul'>&times;</span></Tab>
+                                            <Tab _selected={{ color: 'azure', bg: 'cyan.500' }} key={tab.id} id={tab.id}>{tab.filename} <span onClick={(e) => (closeTab(tab.id))} className='tab-annul'>&times;</span></Tab>
                                         )
                                     )
                                 ) : (
@@ -531,9 +549,18 @@ function WorkSpace() {
                                 openTabs?.length>0 ? (
                                     openTabs.map(
                                         (tab_data) => (
-                                            <TabPanel>
-                                                <textarea className='lineCounter' id={`lineCounter-editor-${tab_data.id}`} wrap='off' readOnly>1</textarea>
-                                                <textarea className='editor' id={`editor-${tab_data.id}`} wrap='off'></textarea>
+                                            <TabPanel key={tab_data.id}>
+                                                {
+                                                    window.screen.width > 600 ? (
+                                                        <CodeMirror id="editor" autoFocus={true} value={codes[tab_data.id]} onChange={c => (updateCode(tab_data.id, c))} options={editorOptions} />
+                                                    ) : (
+                                                        <>
+                                                            <textarea className='lineCounter' id={`lineCounter-editor-${tab_data.id}`} wrap='off' readOnly>1</textarea>
+                                                            <textarea className='editor' id={`editor-${tab_data.id}`} wrap='off'></textarea>
+                                                        </>
+                                                        )
+                                                }
+                                               
                                             </TabPanel>
                                         )
                                     )
