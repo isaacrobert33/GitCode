@@ -7,7 +7,7 @@ import './App.css';
 import git_icon from './git-icon.svg';
 
 // var host = process.env.REACT_APP_HOST;
-var host = "";
+var host = "http://robertix.pythonanywhere.com";
 
 const PostInit = (json) => {
     return {

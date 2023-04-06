@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 // import { upload } from '@testing-library/user-event/dist/upload';
 
 // var = process.env.REACT_APP_HOST;
-var host = "http://127.0.0.1:5000";
+var host = "http://robertix.pythonanywhere.com";
 if (!window.location.href.includes("local")) {
     host = "";
 }
